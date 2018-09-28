@@ -1,0 +1,32 @@
+.section {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+.section:nth-child(odd) {
+    background-color: #e9e9e9;
+}
+.section:nth-child(even) {
+    background-color: #f1f1f1;
+}
+
+.section #sec-ctnt > * ~ * {
+    margin-bottom: 0;
+    margin-top: 0.3em;
+}
+
+@media only screen and (max-width: 600px) {
+    /* For small mobile phones: */
+    
+}
+
+@media only screen and (max-width: 768px) {
+    /* For large mobile phones: */
+    
+}
+
+@media only screen and (min-width: 992px) {
+    /* For large desktop/laptop montiors */
+    
+} 

@@ -1,0 +1,46 @@
+.center-blk {
+    display: inline-block;
+    position: relative;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -20%);
+}
+
+.align-blk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.restrict-sz {
+    max-width: 80%;
+}
+
+.line-brk {
+    margin: 4px 0;
+}
+
+.content {
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.meshed-btn {
+    background-color: transparent !important;
+    border: none;
+}
+
+@media only screen and (max-width: 600px) {
+    /* For small mobile phones: */
+    
+}
+
+@media only screen and (max-width: 768px) {
+    /* For large mobile phones: */
+    
+}
+
+@media only screen and (min-width: 992px) {
+    /* For large desktop/laptop montiors */
+    
+} 

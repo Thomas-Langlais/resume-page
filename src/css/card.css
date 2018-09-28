@@ -1,0 +1,75 @@
+.card-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap; 
+    width: 100%;
+    margin-top: 25px !important;
+}
+
+.card-list.col-1 > .card {
+    width: calc(8.33% - 40px);
+}
+.card-list.col-2 > .card {
+    width: calc(16.66% - 40px);
+}
+.card-list.col-3 > .card {
+    width: calc(25% - 40px);
+}
+.card-list.col-4 > .card {
+    width: calc(33.33% - 40px);
+}
+.card-list.col-5 > .card {
+    width: calc(41.66% - 40px);
+}
+.card-list.col-6 > .card {
+    width: calc(50% - 40px);
+}
+.card-list.col-7 > .card {
+    width: calc(58.33% - 40px);
+}
+.card-list.col-8 > .card {
+    width: calc(66.66% - 40px);
+}
+.card-list.col-9 > .card {
+    width: calc(75% - 40px);
+}
+.card-list.col-10 > .card {
+    width: calc(83.33% - 40px);
+}
+.card-list.col-11 > .card {
+    width: calc(91.66% - 40px);
+}
+.card-list.col-12 > .card {
+    width: calc(100% - 40px);
+}
+
+/* set to fixed when  */
+
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: 300px;
+    margin: 10px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 0.4em;
+    box-shadow: #999 0 0 0.65em;
+}
+
+.card > .title {
+    text-align: center;
+}
+
+
+.card > #cd-content {
+    padding: 5px 10px;
+    flex-shrink: 1;
+}
+
+.card > #cd-btn {
+    margin: 0 -5px -5px -10px;
+
+}
