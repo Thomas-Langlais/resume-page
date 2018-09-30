@@ -18,7 +18,7 @@ export default class Card extends React.Component {
     }
 
     componentDidMount() {
-        
+        this.state.location.top = this._self
     }
 
     expandCard() {
