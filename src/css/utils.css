@@ -1,9 +1,5 @@
 .center-blk {
-    display: inline-block;
-    position: relative;
-    top: 20%;
-    left: 50%;
-    transform: translate(-50%, -20%);
+    margin: auto;
 }
 
 .align-blk {
