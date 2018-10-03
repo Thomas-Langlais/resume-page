@@ -1,0 +1,61 @@
+.card-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap; 
+    width: 100%;
+    margin-top: 25px !important;
+}
+
+.card-list.col-1 > .card {
+    width: calc(8.33% - 40px);
+}
+.card-list.col-2 > .card {
+    width: calc(16.66% - 40px);
+}
+.card-list.col-3 > .card {
+    width: calc(25% - 40px);
+}
+.card-list.col-4 > .card {
+    width: calc(33.33% - 40px);
+}
+.card-list.col-5 > .card {
+    width: calc(41.66% - 40px);
+}
+.card-list.col-6 > .card {
+    width: calc(50% - 40px);
+}
+.card-list.col-7 > .card {
+    width: calc(58.33% - 40px);
+}
+.card-list.col-8 > .card {
+    width: calc(66.66% - 40px);
+}
+.card-list.col-9 > .card {
+    width: calc(75% - 40px);
+}
+.card-list.col-10 > .card {
+    width: calc(83.33% - 40px);
+}
+.card-list.col-11 > .card {
+    width: calc(91.66% - 40px);
+}
+.card-list.col-12 > .card {
+    width: calc(100% - 40px);
+}
+
+@media only screen and (max-width: 600px) {
+    /* For small mobile phones: */
+    
+}
+
+@media only screen and (max-width: 768px) {
+    /* For large mobile phones: */
+    
+}
+
+@media only screen and (min-width: 992px) {
+    /* For large desktop/laptop montiors */
+    
+} 

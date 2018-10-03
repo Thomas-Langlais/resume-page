@@ -3,59 +3,56 @@ import '../css/card.css';
 import '../css/utils.css';
 
 export default class Card extends React.Component {
-    
+    //make a car dlist in order to have a better state system to hold card states
     constructor(props) {
         super(props);
         this.state = {
             isFocused: false,
-            location: {
-                top: 0,
-                left: 0
-            }
+            index: -1
         }
 
-        this.expandCard = this.expandCard.bind(this);
-        this.updateDims = this.updateDims.bind(this);
-        this.debug = this.debug.bind(this);
+        //refs
+        this._card = React.createRef();
+
+        //set this to the React component
+        this.openCard = this.openCard.bind(this);
+        this.closeCard = this.closeCard.bind(this);
+
+        //register the card in the list to setup its events and fancy hooplah
+        this.state.index = this.props.register({
+            openCard: this.openCard,
+            closeCard: this.closeCard
+        });
     }
 
-    debug() {
-        console.log(this);
-    }
-    expandCard() {
-        this.setState(state => (Object.assign(state, {isFocused: !state.isFocused})));
-    }
-
-    updateDims() {
-        let rect = this._self.getBoundingClientRect();
-        this.setState(state => {Object.assign(state, {
-            location: { 
-                top: rect.top,
-                left: rect.left,
-                width: rect.width,
-                height: rect.height
-            }
-        })});
+    //add 2 methods for opening and closing cards
+    openCard() {
+        this.setState((state) => {
+            return Object.assign(state, {isFocused: true});
+        });
     }
 
-    componentWillMount() {
-        
+    closeCard() {
+        this.setState((state) => {
+            return Object.assign(state, {isFocused: false});
+        });
     }
 
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.updateDims);
-    }
+    // componentDidUnmount() {
+    //     //window.removeEventListener('resize', this.updateDims);
+    // }
 
-    componentDidMount() {
-        this.updateDims();
-        window.addEventListener('resize', this.updateDims);
-    }
+    // componentDidMount() {
+    //     //window.addEventListener('resize', this.updateDims);
+    // }
 
     // state change isExpanded, set state and change state on btn click
     render() {
         const shouldExpand = this.state.isFocused;
+
         return (
-            <div onClick={this.debug} ref={(el) => this._self = el}className={"card" + (shouldExpand ? " expanded" : "")}>
+            <div ref={this._card} className={"card" + (shouldExpand ? " expanded" : "")}>
+                
                 <div id="cd-title" className="title">
                     {this.props.title}
                 </div>
@@ -63,9 +60,19 @@ export default class Card extends React.Component {
                 <div id="cd-content" className="content">
                     {this.props.children}
                 </div>
-                <button id="cd-btn" onClick={this.expandCard} className="meshed-btn">
-                    <i className="fas fa-chevron-down"></i>
-                </button>
+                <div id="cd-btm">
+                    { !shouldExpand && (
+                    <button id="cd-btn" onClick={function() { this.openCard(); this.props.updateList(this.state.index); }.bind(this)} className="meshed-btn">
+                        <i className="fas fa-chevron-down"></i>
+                    </button>
+                    )}
+                    { shouldExpand && (
+                    <button id="prev" onClick={function() { this.props.prev(this.state.index);}.bind(this)}>PREV</button>
+                    )}
+                    { shouldExpand && (
+                    <button id="next" onClick={function() { this.props.next(this.state.index);}.bind(this)}>NEXT</button>
+                    )}
+                </div>
             </div>
         )
     }

@@ -26,6 +26,10 @@
     border: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 @media only screen and (max-width: 600px) {
     /* For small mobile phones: */
     
