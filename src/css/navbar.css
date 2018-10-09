@@ -11,6 +11,20 @@
 
 }
 
+#navbar-line {
+    position: absolute;
+    width: 100vw;
+    height: 2px;
+    left: 0;
+    bottom: 0;
+}
+
+#highlight {
+    width: 50px;
+    height: 100%;
+    background: red;
+}
+
 .nav-item {
     cursor: pointer;
 }

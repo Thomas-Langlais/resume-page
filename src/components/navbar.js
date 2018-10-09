@@ -60,14 +60,6 @@ class Navbar extends React.Component {
         window.removeEventListener('scroll', this.checkForItemEvent);
     }
     
-    checkForItemEvent(e) {
-        const index = this.checkForNavItems(e.pageY);
-
-        if (this.state.locationIndex !== index) {
-            this.setState(state => Object.assign(state, {locationIndex: index}));
-        }
-    }
-
     render() {
         
         const { navigatableChildren, navData } = this.renderForChanges(this.props.children);
@@ -75,20 +67,19 @@ class Navbar extends React.Component {
         
         return (
             <div>
-                <div id="bar">{this.state.loading &&
+                <div id="bar">
+                    {
                     navData.map((nav,i) => {
-                        return <NavbarItem key={i} title={nav.title} />
-                    })
-                    }
-                    {!this.state.loading &&
-                    navData.map((nav,i) => {
-                        if (i === this.state.locationIndex) {
+                        if (!this.state.loading && i === this.state.locationIndex) {
                             return <NavbarItem selected key={i} title={nav.title} />;
                         } else {
                             return <NavbarItem key={i} title={nav.title} />
                         }
                     })
                     }
+                    <div id="navbar-line">
+                        <div id="highlight"></div>
+                    </div>
                 </div>
                 <div ref={Navbar.prototype.NAVBAR} id="nav-content">
                     {navigatableChildren}
@@ -170,6 +161,14 @@ class Navbar extends React.Component {
         }
         
         return index;
+    }
+
+    checkForItemEvent(e) {
+        const index = this.checkForNavItems(e.pageY);
+
+        if (this.state.locationIndex !== index) {
+            this.setState(state => Object.assign(state, {locationIndex: index}));
+        }
     }
 }
 
