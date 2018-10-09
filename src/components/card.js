@@ -38,14 +38,6 @@ export default class Card extends React.Component {
         });
     }
 
-    // componentDidUnmount() {
-    //     //window.removeEventListener('resize', this.updateDims);
-    // }
-
-    // componentDidMount() {
-    //     //window.addEventListener('resize', this.updateDims);
-    // }
-
     // state change isExpanded, set state and change state on btn click
     render() {
         const shouldExpand = this.state.isFocused;

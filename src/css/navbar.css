@@ -12,7 +12,11 @@
 }
 
 .nav-item {
-    
+    cursor: pointer;
+}
+
+.nav-item.selected {
+    color: #9F9F9F;
 }
 
 .nav-item ~ .nav-item {
