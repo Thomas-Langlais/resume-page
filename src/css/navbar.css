@@ -1,10 +1,13 @@
 #bar {
-    display: flex;
-    flex-direction: row;
     position: fixed;
     width: 100vw;
-    padding: 0.3em 0.8em;
+    padding: 0 0.2em;
     background: #f2ebcd;
+}
+
+#bar-content {
+    display: inline-block;
+    position: relative;
 }
 
 #nav-content {
@@ -13,28 +16,26 @@
 
 #navbar-line {
     position: absolute;
-    width: 100vw;
+    width: 100px;
     height: 2px;
-    left: 0;
+    left: 0.2em;
     bottom: 0;
-}
-
-#highlight {
-    width: 50px;
-    height: 100%;
-    background: red;
+    background: #9F9F9F;
+    transition: width 0.3s ease-in, left 0.3s ease-in;
 }
 
 .nav-item {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 100px;
+    text-align: center;
+    position: relative;
     cursor: pointer;
+    padding: 0.3em 0.5em;
 }
 
 .nav-item.selected {
     color: #9F9F9F;
-}
-
-.nav-item ~ .nav-item {
-    padding-left: 1em;
 }
 
 @media only screen and (max-width: 600px) {

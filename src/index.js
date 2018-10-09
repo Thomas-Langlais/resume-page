@@ -102,6 +102,7 @@ class App extends React.Component {
     }
 }
 
+window.ReactDOM = ReactDOM; //DEBUG
 ReactDOM.render(<App />, document.getElementById('root'))
 
 /*

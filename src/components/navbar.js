@@ -33,6 +33,7 @@ class Navbar extends React.Component {
         this.calculateLocations = this.calculateLocations.bind(this);
         this.checkForNavItems = this.checkForNavItems.bind(this);
         this.checkForItemEvent = this.checkForItemEvent.bind(this);
+
     }
 
     componentDidMount() {
@@ -49,12 +50,19 @@ class Navbar extends React.Component {
             });
         }
 
+        this.navbarLine = document.getElementById('navbar-line');
+
         //add the handlers
         window.addEventListener('resize', this.calculateLocations);
         window.addEventListener('scroll', this.checkForItemEvent);
+
+        console.log(this);
+        window.navbar = this;
     }
 
     componentWillUnmount() {
+        delete this.navbarLine;
+
         //remove the handlers
         window.removeEventListener('resize', this.calculateLocations);
         window.removeEventListener('scroll', this.checkForItemEvent);
@@ -64,21 +72,30 @@ class Navbar extends React.Component {
         
         const { navigatableChildren, navData } = this.renderForChanges(this.props.children);
         this.navData = navData;
+
+        const navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((item,i,arr) => {
+            var per = ((i / (arr.length)) * 100) + '%';
+            return {
+                left: 'calc(.2em + ' + per + ')'
+            }
+        }));
         
         return (
             <div>
                 <div id="bar">
-                    {
-                    navData.map((nav,i) => {
-                        if (!this.state.loading && i === this.state.locationIndex) {
-                            return <NavbarItem selected key={i} title={nav.title} />;
-                        } else {
-                            return <NavbarItem key={i} title={nav.title} />
+                    <div id="bar-content">
+                        {
+                        navData.map((nav,i) => {
+                            if (!this.state.loading && i === this.state.locationIndex) {
+                                return <NavbarItem selected key={i} title={nav.title} />;
+                            } else {
+                                return <NavbarItem key={i} title={nav.title} />
+                            }
+                        })
                         }
-                    })
-                    }
-                    <div id="navbar-line">
-                        <div id="highlight"></div>
+                        {!this.state.loading &&
+                            <div id="navbar-line" style={navLineStyles[this.state.locationIndex]}></div>
+                        }
                     </div>
                 </div>
                 <div ref={Navbar.prototype.NAVBAR} id="nav-content">
