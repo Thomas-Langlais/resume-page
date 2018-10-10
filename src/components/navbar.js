@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import createOneTimeEvent from '../utils/utils.js'
 import '../css/navbar.css'
 
 class NavbarItem extends React.Component {
@@ -29,12 +30,23 @@ class NavbarItem extends React.Component {
         //     scrollTop: this.props.location(this.props.locRef, this.props.index)
         // }, 300);
         var location = this.props.location(this.props.locRef, this.props.index);
+
+        createOneTimeEvent(
+            window, 'scroll',
+            function (e,location) {
+                return e.pageY === location;
+            },
+            function() {
+                this.props.onEnd();
+            },
+            this,
+            location
+        );
+
         window.scroll({
             top: location,
             behavior: 'smooth'
         });
-        console.log(location !== window.pageYOffset);
-        console.log('done?');
     }
 }
 
@@ -45,15 +57,15 @@ class Navbar extends React.Component {
 
         this.state = {
             locationIndex: -1,
-            goingToLink: false,
+            navToLink: false,
+            docToLink: false,
             loading: true
         };
 
-        this.findOffsetLocation = this.findOffsetLocation.bind(this);
         this.calculateLocations = this.calculateLocations.bind(this);
-        this.checkForNavItems = this.checkForNavItems.bind(this);
-        this.checkForItemEvent = this.checkForItemEvent.bind(this);
+        this.changeNavOnScroll = this.changeNavOnScroll.bind(this);
         this.getLocation = this.getLocation.bind(this);
+        this.endDocEvent = this.endDocEvent.bind(this);
         this.transitionFinished = this.transitionFinished.bind(this);
     }
 
@@ -62,7 +74,7 @@ class Navbar extends React.Component {
         
         //we need to recalculate
         this.calculateLocations();
-        index = this.checkForNavItems(window.pageYOffset);
+        index = this.checkForNavItems(window.pageYOffset, this.ranges);
 
         
         if (this.state.loading) {
@@ -71,22 +83,18 @@ class Navbar extends React.Component {
             });
         }
 
-        this.navbarLine = document.getElementById('navbar-line');
-
         //add the handlers
         window.addEventListener('resize', this.calculateLocations);
-        window.addEventListener('scroll', this.checkForItemEvent);
+        window.addEventListener('scroll', this.changeNavOnScroll);
 
-        console.log(this);
         window.navbar = this;
     }
 
     componentWillUnmount() {
-        delete this.navbarLine;
 
         //remove the handlers
         window.removeEventListener('resize', this.calculateLocations);
-        window.removeEventListener('scroll', this.checkForItemEvent);
+        window.removeEventListener('scroll', this.changeNavOnScroll);
     }
     
     render() {
@@ -95,9 +103,8 @@ class Navbar extends React.Component {
         this.navData = navData;
 
         const navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((item,i,arr) => {
-            var per = ((i / (arr.length)) * 100) + '%';
             return {
-                left: 'calc(.2em + ' + per + ')'
+                left: 'calc(' + ((i / (arr.length)) * 100) + '%)'
             }
         }));
         
@@ -109,10 +116,10 @@ class Navbar extends React.Component {
                         navData.map((nav,i) => {
                             if (!this.state.loading && i === this.state.locationIndex) {
                                 return <NavbarItem selected key={i} index={i} title={nav.title} locRef={nav.ref} 
-                                        location={this.getLocation} />;
+                                        location={this.getLocation} onEnd={this.endDocEvent} />;
                             } else {
                                 return <NavbarItem key={i} index={i} title={nav.title} locRef={nav.ref} 
-                                        location={this.getLocation} />
+                                        location={this.getLocation} onEnd={this.endDocEvent} />
                             }
                         })
                         }
@@ -121,11 +128,43 @@ class Navbar extends React.Component {
                         }
                     </div>
                 </div>
-                <div ref={Navbar.prototype.NAVBAR} id="nav-content">
+                <div ref={this.NAVBAR} id="nav-content">
                     {navigatableChildren}
                 </div>
             </div>
         );
+    }
+
+    calculateLocations() {
+        this.navData = this.navData.map(navItem => Object.assign(navItem, {location: this.findOffsetLocation(navItem.ref, this.refs)}));
+        this.ranges = this.navData.map((navItem, i, arr) => {
+            if (i+1 < arr.length) {
+                return {greater: navItem.location, less: arr[i+1].location};
+            }
+            return {greater: navItem.location};
+        })
+    }
+
+    getLocation(ref, index) {
+        this.setState(state => Object.assign(state, {locationIndex: index, docToLink: true, navToLink: true}));
+        return this.findOffsetLocation(ref, this.refs);
+    }
+
+    endDocEvent() {
+        this.setState(state => Object.assign(state, {docToLink: false}));
+    }
+
+    //events
+    changeNavOnScroll(e) { //scroll event
+        const index = this.checkForNavItems(e.pageY, this.ranges);
+
+        if (!this.state.docToLink && !this.state.navToLink && this.state.locationIndex !== index) {
+            this.setState(state => Object.assign(state, {locationIndex: index}));
+        }
+    }
+
+    transitionFinished() {
+        this.setState(state => Object.assign(state, {navToLink: false}));
     }
 
     //util methods
@@ -160,10 +199,10 @@ class Navbar extends React.Component {
         };
     }
 
-    findOffsetLocation(ref) {
+    findOffsetLocation(ref, refs) {
         var offsetLocation = 0,
-            e = ReactDOM.findDOMNode(this.refs[ref]),
-            bound = ReactDOM.findDOMNode(this.refs[Navbar.prototype.NAVBAR]);
+            e = ReactDOM.findDOMNode(refs[ref]),
+            bound = ReactDOM.findDOMNode(refs[Navbar.prototype.NAVBAR]);
         do {
             if (e !== bound && !isNaN(e.offsetTop)) {
                 offsetLocation += e.offsetTop;
@@ -172,23 +211,13 @@ class Navbar extends React.Component {
         return offsetLocation;
     }
 
-    calculateLocations() {
-        this.navData = this.navData.map(navItem => Object.assign(navItem, {location: this.findOffsetLocation(navItem.ref)}));
-        this.ranges = this.navData.map((navItem, i, arr) => {
-            if (i+1 < arr.length) {
-                return {greater: navItem.location, less: arr[i+1].location};
-            }
-            return {greater: navItem.location};
-        })
-    }
-
-    checkForNavItems(location) {
+    checkForNavItems(location, ranges) {
         
         var navItemFound = false,
             index = -1;
             
-        for (var i = 0; i < this.ranges.length; i++) {
-            var range = this.ranges[i];
+        for (var i = 0; i < ranges.length; i++) {
+            var range = ranges[i];
 
             if (range.less) {
                 navItemFound = (range.greater <= location && location < range.less);
@@ -203,27 +232,8 @@ class Navbar extends React.Component {
         
         return index;
     }
-
-    getLocation(ref, index) {
-        this.setState(state => Object.assign(state, {locationIndex: index, goingToLink: true}));
-        return this.findOffsetLocation(ref);
-    }
-
-    //events
-    checkForItemEvent(e) {
-        const index = this.checkForNavItems(e.pageY);
-
-        if (!this.state.goingToLink && this.state.locationIndex !== index) {
-            this.setState(state => Object.assign(state, {locationIndex: index}));
-        }
-    }
-
-    transitionFinished() {
-        this.setState(state => Object.assign(state, {goingToLink: false}));
-    }
 }
 
-Navbar.prototype.NAVBAR_ITEM = 'navbar-item';
 Navbar.prototype.NAVBAR_REF = 'navbar-ref';
 Navbar.prototype.NAVBAR = 'navbar';
 
