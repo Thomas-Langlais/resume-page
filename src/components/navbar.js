@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import createOneTimeEvent from '../utils/utils.js'
+import { createOneTimeEvent, getTextWidth } from '../utils/utils.js'
 import '../css/navbar.css'
 
 class NavbarItem extends React.Component {
@@ -19,17 +19,17 @@ class NavbarItem extends React.Component {
         const selected = this.props.selected;
         
         return (
-            <div onClick={this.goToLocation} className={"nav-item" + (selected ? ' selected' : '')}>
+            <div onClick={this.goToLocation} className={"nav-item" + (selected ? ' selected' : '')}
+                style={this.props.style}>
                 {this.props.title}
             </div>
         )
     }
 
     goToLocation(e) {
-        // document.body.animate({
-        //     scrollTop: this.props.location(this.props.locRef, this.props.index)
-        // }, 300);
-        var location = this.props.location(this.props.locRef, this.props.index);
+        const navHeight = this.goToLocation.navHeight || (this.goToLocation.navHeight = document.getElementById('bar').getBoundingClientRect().height);
+
+        var location = Math.floor(this.props.location(this.props.locRef, this.props.index) - navHeight);
 
         createOneTimeEvent(
             window, 'scroll',
@@ -99,27 +99,44 @@ class Navbar extends React.Component {
     
     render() {
         
-        const { navigatableChildren, navData } = this.renderForChanges(this.props.children);
+        const { navigatableChildren, navData } = this.renderForChanges(this.props.children),
+            styles = {
+                fontSize: 16
+            };
+        var sumLeft = 0;
+
         this.navData = navData;
 
-        const navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((item,i,arr) => {
-            return {
-                left: 'calc(' + ((i / (arr.length)) * 100) + '%)'
-            }
+        const navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((nav,i,arr) => {
+            //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
+            var width = getTextWidth(nav.title, styles.fontSize + 'px Oswald') + styles.fontSize;
+            
+            var style = {
+                width: width,
+                left: sumLeft
+            };
+
+            sumLeft += width;
+            return style;
         }));
         
         return (
             <div>
-                <div id="bar">
-                    <div id="bar-content">
+                {/* FIXME: work on the refresh bug that sets the locationIndex to locationIndex - 1...
+                    We will work on hiding the navbar on intro and fade in the nav to stick to the top after passing
+                    The threshold, which will be the the 2nd section */}
+                <div id="bar" style={this.state.locationIndex === 0 ? {position: 'relative'} : {}}>
+                    <div ref={this.NAVBAR} id="bar-content">
                         {
                         navData.map((nav,i) => {
                             if (!this.state.loading && i === this.state.locationIndex) {
                                 return <NavbarItem selected key={i} index={i} title={nav.title} locRef={nav.ref} 
-                                        location={this.getLocation} onEnd={this.endDocEvent} />;
+                                        location={this.getLocation} onEnd={this.endDocEvent} 
+                                        style={styles} />;
                             } else {
                                 return <NavbarItem key={i} index={i} title={nav.title} locRef={nav.ref} 
-                                        location={this.getLocation} onEnd={this.endDocEvent} />
+                                        location={this.getLocation} onEnd={this.endDocEvent}
+                                        style={styles} />
                             }
                         })
                         }
@@ -128,7 +145,7 @@ class Navbar extends React.Component {
                         }
                     </div>
                 </div>
-                <div ref={this.NAVBAR} id="nav-content">
+                <div id="nav-content">
                     {navigatableChildren}
                 </div>
             </div>
@@ -212,7 +229,8 @@ class Navbar extends React.Component {
     }
 
     checkForNavItems(location, ranges) {
-        
+        const navHeight = this.checkForNavItems.navHeight || (this.checkForNavItems.navHeight = ReactDOM.findDOMNode(this.refs[this.NAVBAR]).getBoundingClientRect().height);
+
         var navItemFound = false,
             index = -1;
             
@@ -220,9 +238,9 @@ class Navbar extends React.Component {
             var range = ranges[i];
 
             if (range.less) {
-                navItemFound = (range.greater <= location && location < range.less);
+                navItemFound = (range.greater - navHeight <= location && location < range.less - navHeight);
             } else {
-                navItemFound = range.greater <= location;
+                navItemFound = range.greater - navHeight <= location;
             }
             if (navItemFound) {
                 index = i;

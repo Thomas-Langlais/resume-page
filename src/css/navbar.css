@@ -27,7 +27,7 @@
 .nav-item {
     display: inline-block;
     box-sizing: border-box;
-    width: 100px;
+    /* width: 100px; */
     text-align: center;
     position: relative;
     cursor: pointer;
