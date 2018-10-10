@@ -4,19 +4,38 @@ import '../css/navbar.css'
 
 class NavbarItem extends React.Component {
 
+    static defaultProps = {
+        selected: false
+    };
+
+    constructor(props) {
+        super(props);
+
+        this.goToLocation = this.goToLocation.bind(this);
+    }
+
     render() {
         const selected = this.props.selected;
         
         return (
-            <div className={"nav-item" + (selected ? ' selected' : '')}>
+            <div onClick={this.goToLocation} className={"nav-item" + (selected ? ' selected' : '')}>
                 {this.props.title}
             </div>
         )
     }
 
-    static defaultProps = {
-        selected: false
-    };
+    goToLocation(e) {
+        // document.body.animate({
+        //     scrollTop: this.props.location(this.props.locRef, this.props.index)
+        // }, 300);
+        var location = this.props.location(this.props.locRef, this.props.index);
+        window.scroll({
+            top: location,
+            behavior: 'smooth'
+        });
+        console.log(location !== window.pageYOffset);
+        console.log('done?');
+    }
 }
 
 class Navbar extends React.Component {
@@ -26,6 +45,7 @@ class Navbar extends React.Component {
 
         this.state = {
             locationIndex: -1,
+            goingToLink: false,
             loading: true
         };
 
@@ -33,7 +53,8 @@ class Navbar extends React.Component {
         this.calculateLocations = this.calculateLocations.bind(this);
         this.checkForNavItems = this.checkForNavItems.bind(this);
         this.checkForItemEvent = this.checkForItemEvent.bind(this);
-
+        this.getLocation = this.getLocation.bind(this);
+        this.transitionFinished = this.transitionFinished.bind(this);
     }
 
     componentDidMount() {
@@ -87,14 +108,16 @@ class Navbar extends React.Component {
                         {
                         navData.map((nav,i) => {
                             if (!this.state.loading && i === this.state.locationIndex) {
-                                return <NavbarItem selected key={i} title={nav.title} />;
+                                return <NavbarItem selected key={i} index={i} title={nav.title} locRef={nav.ref} 
+                                        location={this.getLocation} />;
                             } else {
-                                return <NavbarItem key={i} title={nav.title} />
+                                return <NavbarItem key={i} index={i} title={nav.title} locRef={nav.ref} 
+                                        location={this.getLocation} />
                             }
                         })
                         }
                         {!this.state.loading &&
-                            <div id="navbar-line" style={navLineStyles[this.state.locationIndex]}></div>
+                            <div id="navbar-line" onTransitionEnd={this.transitionFinished} style={navLineStyles[this.state.locationIndex]}></div>
                         }
                     </div>
                 </div>
@@ -105,6 +128,7 @@ class Navbar extends React.Component {
         );
     }
 
+    //util methods
     renderForChanges(children, i = 0) {
         var navData = [];
         var navigatableChildren = React.Children.map(children, (child) => {
@@ -180,12 +204,22 @@ class Navbar extends React.Component {
         return index;
     }
 
+    getLocation(ref, index) {
+        this.setState(state => Object.assign(state, {locationIndex: index, goingToLink: true}));
+        return this.findOffsetLocation(ref);
+    }
+
+    //events
     checkForItemEvent(e) {
         const index = this.checkForNavItems(e.pageY);
 
-        if (this.state.locationIndex !== index) {
+        if (!this.state.goingToLink && this.state.locationIndex !== index) {
             this.setState(state => Object.assign(state, {locationIndex: index}));
         }
+    }
+
+    transitionFinished() {
+        this.setState(state => Object.assign(state, {goingToLink: false}));
     }
 }
 
