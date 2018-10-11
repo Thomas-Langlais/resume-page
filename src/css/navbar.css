@@ -1,12 +1,19 @@
-#bar {
+#navbar {
     position: fixed;
+}
+
+#scroll-navbar {
+    position: relative;
+}
+
+.bar {
     box-sizing: border-box;
     width: 100%;
     padding: 0 0.2em;
     background: #f2ebcd;
 }
 
-#bar-content {
+.bar-content {
     display: inline-block;
     position: relative;
 }
@@ -15,7 +22,7 @@
 
 }
 
-#navbar-line {
+.navbar-line {
     position: absolute;
     width: 100px;
     height: 2px;

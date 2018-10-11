@@ -27,7 +27,7 @@ class NavbarItem extends React.Component {
     }
 
     goToLocation(e) {
-        const navHeight = this.goToLocation.navHeight || (this.goToLocation.navHeight = document.getElementById('bar').getBoundingClientRect().height);
+        const navHeight = this.goToLocation.navHeight || (this.goToLocation.navHeight = document.getElementById('navbar').getBoundingClientRect().height);
 
         var location = Math.floor(this.props.location(this.props.locRef, this.props.index) - (this.props.index !== 0 ? navHeight : 0));
 
@@ -47,6 +47,21 @@ class NavbarItem extends React.Component {
             top: location,
             behavior: 'smooth'
         });
+    }
+}
+
+// TODO: get this fake bar to get navData somehow... look it up
+// Ill have to use requestAnimationFrame to hand move the scroolbar out
+class FadeScrollBar extends React.Component {
+
+    render() {
+        return (
+            <div id="scroll-navbar" className="bar">
+                <div className="bar-content">
+                    <div>biiitch</div>
+                </div>
+            </div>
+        )
     }
 }
 
@@ -125,9 +140,9 @@ class Navbar extends React.Component {
                 {/* FIXME: work on the refresh bug that sets the locationIndex to locationIndex - 1...
                     We will work on hiding the navbar on intro and fade in the nav to stick to the top after passing
                     The threshold, which will be the the 2nd section */}
-                <div id="bar" style={this.state.locationIndex === 0 ? {position: 'relative'} : {}}>
-                {/* <div id="bar"> */}
-                    <div ref={this.NAVBAR} id="bar-content">
+                {/* <div id="bar" style={this.state.locationIndex === 0 ? {position: 'relative'} : {}}> */}
+                <div id="navbar" className="bar">
+                    <div ref={this.NAVBAR} className="bar-content">
                         {
                         navData.map((nav,i) => {
                             if (!this.state.loading && i === this.state.locationIndex) {
@@ -142,11 +157,11 @@ class Navbar extends React.Component {
                         })
                         }
                         {!this.state.loading &&
-                            <div id="navbar-line" onTransitionEnd={this.transitionFinished} style={navLineStyles[this.state.locationIndex]}></div>
+                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={navLineStyles[this.state.locationIndex]}></div>
                         }
                     </div>
                 </div>
-                <div id="nav-content">
+                <div className="nav-content">
                     {navigatableChildren}
                 </div>
             </div>
@@ -175,7 +190,7 @@ class Navbar extends React.Component {
     //events
     changeNavOnScroll(e) { //scroll event
         const index = this.checkForNavItems(e.pageY, this.ranges);
-
+        
         if (!this.state.docToLink && !this.state.navToLink && this.state.locationIndex !== index) {
             this.setState(state => Object.assign(state, {locationIndex: index}));
         }
@@ -209,6 +224,8 @@ class Navbar extends React.Component {
                     children: navChildren.navigatableChildren
                 });
             }
+
+            return child;
         });
 
         return {
@@ -256,4 +273,4 @@ class Navbar extends React.Component {
 Navbar.prototype.NAVBAR_REF = 'navbar-ref';
 Navbar.prototype.NAVBAR = 'navbar';
 
-export default Navbar;
+export {Navbar,FadeScrollBar};
