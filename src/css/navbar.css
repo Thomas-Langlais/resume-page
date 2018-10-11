@@ -1,6 +1,7 @@
 #bar {
     position: fixed;
-    width: 100vw;
+    box-sizing: border-box;
+    width: 100%;
     padding: 0 0.2em;
     background: #f2ebcd;
 }
@@ -28,7 +29,6 @@
     display: inline-block;
     box-sizing: border-box;
     /* width: 100px; */
-    text-align: center;
     position: relative;
     cursor: pointer;
     padding: 0.3em 0.5em;

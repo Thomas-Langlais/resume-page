@@ -29,7 +29,7 @@ class NavbarItem extends React.Component {
     goToLocation(e) {
         const navHeight = this.goToLocation.navHeight || (this.goToLocation.navHeight = document.getElementById('bar').getBoundingClientRect().height);
 
-        var location = Math.floor(this.props.location(this.props.locRef, this.props.index) - navHeight);
+        var location = Math.floor(this.props.location(this.props.locRef, this.props.index) - (this.props.index !== 0 ? navHeight : 0));
 
         createOneTimeEvent(
             window, 'scroll',
@@ -126,6 +126,7 @@ class Navbar extends React.Component {
                     We will work on hiding the navbar on intro and fade in the nav to stick to the top after passing
                     The threshold, which will be the the 2nd section */}
                 <div id="bar" style={this.state.locationIndex === 0 ? {position: 'relative'} : {}}>
+                {/* <div id="bar"> */}
                     <div ref={this.NAVBAR} id="bar-content">
                         {
                         navData.map((nav,i) => {
