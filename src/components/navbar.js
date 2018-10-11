@@ -58,7 +58,7 @@ class FadeScrollBar extends React.Component {
         return (
             <div id="scroll-navbar" className="bar">
                 <div className="bar-content">
-                    <div>biiitch</div>
+                    <div className="nav-item">biiitch</div>
                 </div>
             </div>
         )
@@ -82,6 +82,13 @@ class Navbar extends React.Component {
         this.getLocation = this.getLocation.bind(this);
         this.endDocEvent = this.endDocEvent.bind(this);
         this.transitionFinished = this.transitionFinished.bind(this);
+
+        //fixes the canvas bug for loading
+        createOneTimeEvent(window, 'load', () => true, 
+            function() {
+                this.setState(state => Object.assign(state, {loading: false}));
+            }, this
+        );
     }
 
     componentDidMount() {
@@ -94,7 +101,7 @@ class Navbar extends React.Component {
         
         if (this.state.loading) {
             this.setState(state => {
-                return Object.assign(state, {locationIndex: index, loading: false})
+                return Object.assign(state, {locationIndex: index})
             });
         }
 
@@ -118,23 +125,27 @@ class Navbar extends React.Component {
             styles = {
                 fontSize: 16
             };
-        var sumLeft = 0;
+        var sumLeft = 0,
+            navLineStyles;
 
         this.navData = navData;
 
-        const navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((nav,i,arr) => {
-            //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
-            var width = getTextWidth(nav.title, styles.fontSize + 'px Oswald') + styles.fontSize;
-            
-            var style = {
-                width: width,
-                left: sumLeft
-            };
 
-            sumLeft += width;
-            return style;
-        }));
-        
+        if (!this.state.loading) {
+            navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((nav,i,arr) => {
+                //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
+                var width = getTextWidth(nav.title, styles.fontSize + 'px Oswald') + styles.fontSize;
+                
+                var style = {
+                    width: width,
+                    left: sumLeft
+                };
+
+                sumLeft += width;
+                return style;
+            }));
+        }
+
         return (
             <div>
                 {/* FIXME: work on the refresh bug that sets the locationIndex to locationIndex - 1...
@@ -157,7 +168,7 @@ class Navbar extends React.Component {
                         })
                         }
                         {!this.state.loading &&
-                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={navLineStyles[this.state.locationIndex]}></div>
+                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={!this.state.loading ? navLineStyles[this.state.locationIndex] : {}}></div>
                         }
                     </div>
                 </div>
