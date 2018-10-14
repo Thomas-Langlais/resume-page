@@ -25,9 +25,8 @@
 
 .navbar-line {
     position: absolute;
-    width: 100px;
     height: 2px;
-    left: 0.2em;
+    left: 0;
     bottom: 0;
     background: #9F9F9F;
     transition: width 0.3s ease-in, left .3s ease-in;

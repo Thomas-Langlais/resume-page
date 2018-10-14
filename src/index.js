@@ -1,34 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Section from './components/section';
-import Title from './components/title';
-import Card from './components/card';
-import CardList from './components/cardlist';
-import {Navbar,FadeScrollBar} from './components/navbar';
-import Adapter from './utils/adapter';
+import {Section, Title, Card, CardList, Navbar, FadeScrollBar} from './components'
 import './css/index.css';
 
 class App extends React.Component {
     
-    constructor(props) {
-        super(props);
-
-        window.app = this;
-        window.Adapter = Adapter;
-    }
-    
     render() {
 
-        const adapter = this.render.adapter || (this.render.adapter = new Adapter());
-
         return (
-            <Navbar navDataAdapter={adapter}>
+            <Navbar>
                 <Section navTitle="Hi!" id="intro">
                     <Title>Hello, I'm Thomas L'Anglais</Title>
                     <p>Welcome to my website!</p>
                     <p>On this page you will learn a bit about me, the work I've done, problems I solved, and more <b>NOTE - fix this when things are final</b></p>
                 </Section>
-                <FadeScrollBar navDataAdapter={adapter} />
+                <FadeScrollBar />
                 <Section navTitle="About me" id="whoami">
                     <Title>Who am I?</Title>
                     <p>I am a very stereotypical computer geek. I love building computers, playing games of all sort, 

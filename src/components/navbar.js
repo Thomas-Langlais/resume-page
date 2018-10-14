@@ -96,7 +96,7 @@ class Navbar extends React.Component {
         
         //we need to recalculate
         this.calculateLocations();
-        index = this.checkForNavItems(window.pageYOffset, this.ranges);
+        index = this.checkForNavItems(window.pageYOffset, this.navData);
 
         
         if (this.state.loading) {
@@ -120,30 +120,28 @@ class Navbar extends React.Component {
     }
     
     render() {
-        
-        const { navigatableChildren, navData } = this.renderForChanges(this.props.children),
-            styles = {
-                fontSize: 16
-            };
-        var sumLeft = 0,
-            navLineStyles;
+        //do this once...
+        const { navigatableChildren, navData } = this.renderForChanges(this.props.children);            
+        const styles = {
+            fontSize: 16
+        };
 
-        this.navData = navData;
+        this.navData = this.navData || (this.navData = navData);
 
 
         if (!this.state.loading) {
-            navLineStyles = this.navLineStyles || (this.navLineStyles = navData.map((nav,i,arr) => {
-                //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
-                var width = getTextWidth(nav.title, styles.fontSize + 'px Oswald') + styles.fontSize;
+
+            let sumLeft = 0;
+            this.navData.forEach((navItem,index,root) => {
                 
-                var style = {
-                    width: width,
-                    left: sumLeft
-                };
+                //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
+                var width = getTextWidth(navItem.title, styles.fontSize + 'px Oswald') + styles.fontSize;
+
+                navItem.navLine.width = width;
+                navItem.navLine.left = sumLeft;
 
                 sumLeft += width;
-                return style;
-            }));
+            });
         }
 
         return (
@@ -168,7 +166,7 @@ class Navbar extends React.Component {
                         })
                         }
                         {!this.state.loading &&
-                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={!this.state.loading ? navLineStyles[this.state.locationIndex] : {}}></div>
+                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={!this.state.loading ? this.navData[this.state.locationIndex].navLine : {}}></div>
                         }
                     </div>
                 </div>
@@ -180,13 +178,19 @@ class Navbar extends React.Component {
     }
 
     calculateLocations() {
-        this.navData = this.navData.map(navItem => Object.assign(navItem, {location: this.findOffsetLocation(navItem.ref, this.refs)}));
-        this.ranges = this.navData.map((navItem, i, arr) => {
-            if (i+1 < arr.length) {
-                return {greater: navItem.location, less: arr[i+1].location};
+        this.navData.forEach((navItem,index,root) => {
+            navItem.boundary.greater = this.findOffsetLocation(navItem.ref, this.refs);
+            if (index+1 < root.length) {
+                navItem.boundary.lesser = this.findOffsetLocation(root[index+1].ref, this.refs);
             }
-            return {greater: navItem.location};
-        })
+        });
+        // this.navData = this.navData.map(navItem => Object.assign(navItem, {location: this.findOffsetLocation(navItem.ref, this.refs)}));
+        // this.ranges = this.navData.map((navItem, i, arr) => {
+        //     if (i+1 < arr.length) {
+        //         return {greater: navItem.location, less: arr[i+1].location};
+        //     }
+        //     return {greater: navItem.location};
+        // })
     }
 
     getLocation(ref, index) {
@@ -200,7 +204,7 @@ class Navbar extends React.Component {
 
     //events
     changeNavOnScroll(e) { //scroll event
-        const index = this.checkForNavItems(e.pageY, this.ranges);
+        const index = this.checkForNavItems(e.pageY, this.navData);
         
         if (!this.state.docToLink && !this.state.navToLink && this.state.locationIndex !== index) {
             this.setState(state => Object.assign(state, {locationIndex: index}));
@@ -212,28 +216,32 @@ class Navbar extends React.Component {
     }
 
     //util methods
-    renderForChanges(children, i = 0) {
-        var navData = [];
+    renderForChanges(children) {
+        var navData = [],
+            i = 0;
         var navigatableChildren = React.Children.map(children, (child) => {
-
+            
             if (!child.props) {
                 return child;
             }
 
             if (child.props.navTitle) {
-                let ref = this.NAVBAR_REF + i++;
-                navData.push({title: child.props.navTitle, ref: ref});
-                return React.cloneElement(child, {ref: ref});
-            }
 
-            if (child.props.children) {
-
-                var navChildren = this.renderForChanges(child.props.children, i);
-                navData.push(navChildren.navData);
-                navData = navData.flat();
-                return React.cloneElement(child, {
-                    children: navChildren.navigatableChildren
+                var ref = this.NAVBAR_REF + i++;
+                navData.push({
+                    title: child.props.navTitle,
+                    ref: ref,
+                    boundary: {
+                        greater: null,
+                        lesser: null
+                    },
+                    navLine: {
+                        left: null,
+                        width: null
+                    }
                 });
+
+                return React.cloneElement(child, {ref: ref});
             }
 
             return child;
@@ -257,17 +265,17 @@ class Navbar extends React.Component {
         return offsetLocation;
     }
 
-    checkForNavItems(location, ranges) {
+    checkForNavItems(location, navData) {
         const navHeight = this.checkForNavItems.navHeight || (this.checkForNavItems.navHeight = ReactDOM.findDOMNode(this.refs[this.NAVBAR]).getBoundingClientRect().height);
 
         var navItemFound = false,
             index = -1;
             
-        for (var i = 0; i < ranges.length; i++) {
-            var range = ranges[i];
+        for (var i = 0; i < navData.length; i++) {
+            var range = navData[i].boundary;
 
             if (range.less) {
-                navItemFound = (range.greater - navHeight <= location && location < range.less - navHeight);
+                navItemFound = (range.greater - navHeight <= location && location < range.lesser - navHeight);
             } else {
                 navItemFound = range.greater - navHeight <= location;
             }
