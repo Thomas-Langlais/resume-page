@@ -54,11 +54,34 @@ class NavbarItem extends React.Component {
 // Ill have to use requestAnimationFrame to hand move the scroolbar out
 class FadeScrollBar extends React.Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            loading: true
+        };
+
+        if (props.adapter) {
+            props.adapter.addListener({
+                load: (data) => {
+                    this.setState(state => Object.assign(state, {loading: false}));
+                }
+            }, this);
+        }
+    }
+
     render() {
         return (
             <div id="scroll-navbar" className="bar">
                 <div className="bar-content">
-                    <div className="nav-item">biiitch</div>
+                    <div className="nav-item">
+                        {!this.state.loading &&
+                            this.props.adapter.data.map((nav) => {
+                                return <div className="nav-item">{nav}</div>
+                                // return <div className="nav-item">{nav.title}</div>
+                            })
+                        }
+                    </div>
                 </div>
             </div>
         )
@@ -89,6 +112,10 @@ class Navbar extends React.Component {
                 this.setState(state => Object.assign(state, {loading: false}));
             }, this
         );
+
+        if (props.adapter) props.adapter.addListener({}, this);
+
+        window.navbar = this;
     }
 
     componentDidMount() {
@@ -96,7 +123,7 @@ class Navbar extends React.Component {
         
         //we need to recalculate
         this.calculateLocations();
-        index = this.checkForNavItems(window.pageYOffset, this.navData);
+        index = this.checkForNavItems(window.pageYOffset, this.render.data.navData);
 
         
         if (this.state.loading) {
@@ -105,11 +132,16 @@ class Navbar extends React.Component {
             });
         }
 
+        this.props.adapter.load(() => {
+            return {
+                thisArg: this,
+                data: this.render.data.navData.map((item) => item.title)
+            }
+        });
+
         //add the handlers
         window.addEventListener('resize', this.calculateLocations);
         window.addEventListener('scroll', this.changeNavOnScroll);
-
-        window.navbar = this;
     }
 
     componentWillUnmount() {
@@ -121,24 +153,23 @@ class Navbar extends React.Component {
     
     render() {
         //do this once...
-        const { navigatableChildren, navData } = this.renderForChanges(this.props.children);            
+        const { navigatableChildren, navData } = this.render.data || (this.render.data = this.renderForChanges(this.props.children));
         const styles = {
             fontSize: 16
         };
 
-        this.navData = this.navData || (this.navData = navData);
-
-
         if (!this.state.loading) {
 
             let sumLeft = 0;
-            this.navData.forEach((navItem,index,root) => {
+            this.render.data.navData.forEach((navItem,index,root) => {
                 
                 //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
                 var width = getTextWidth(navItem.title, styles.fontSize + 'px Oswald') + styles.fontSize;
 
-                navItem.navLine.width = width;
-                navItem.navLine.left = sumLeft;
+                navItem.navLine = {
+                    width: width,
+                    left: sumLeft
+                };
 
                 sumLeft += width;
             });
@@ -166,7 +197,7 @@ class Navbar extends React.Component {
                         })
                         }
                         {!this.state.loading &&
-                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={!this.state.loading ? this.navData[this.state.locationIndex].navLine : {}}></div>
+                            <div className="navbar-line" onTransitionEnd={this.transitionFinished} style={!this.state.loading ? this.render.data.navData[this.state.locationIndex].navLine : {}}></div>
                         }
                     </div>
                 </div>
@@ -178,19 +209,12 @@ class Navbar extends React.Component {
     }
 
     calculateLocations() {
-        this.navData.forEach((navItem,index,root) => {
+        this.render.data.navData.forEach((navItem,index,root) => {
             navItem.boundary.greater = this.findOffsetLocation(navItem.ref, this.refs);
             if (index+1 < root.length) {
                 navItem.boundary.lesser = this.findOffsetLocation(root[index+1].ref, this.refs);
             }
         });
-        // this.navData = this.navData.map(navItem => Object.assign(navItem, {location: this.findOffsetLocation(navItem.ref, this.refs)}));
-        // this.ranges = this.navData.map((navItem, i, arr) => {
-        //     if (i+1 < arr.length) {
-        //         return {greater: navItem.location, less: arr[i+1].location};
-        //     }
-        //     return {greater: navItem.location};
-        // })
     }
 
     getLocation(ref, index) {
@@ -204,10 +228,11 @@ class Navbar extends React.Component {
 
     //events
     changeNavOnScroll(e) { //scroll event
-        const index = this.checkForNavItems(e.pageY, this.navData);
-        
-        if (!this.state.docToLink && !this.state.navToLink && this.state.locationIndex !== index) {
-            this.setState(state => Object.assign(state, {locationIndex: index}));
+        if (!this.state.docToLink && !this.state.navToLink) {
+            const index = this.checkForNavItems(e.pageY, this.render.data.navData);
+            if (this.state.locationIndex !== index) {
+                this.setState(state => Object.assign(state, {locationIndex: index}));
+            }
         }
     }
 
@@ -274,7 +299,7 @@ class Navbar extends React.Component {
         for (var i = 0; i < navData.length; i++) {
             var range = navData[i].boundary;
 
-            if (range.less) {
+            if (range.lesser) {
                 navItemFound = (range.greater - navHeight <= location && location < range.lesser - navHeight);
             } else {
                 navItemFound = range.greater - navHeight <= location;

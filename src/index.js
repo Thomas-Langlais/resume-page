@@ -1,20 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Section, Title, Card, CardList, Navbar, FadeScrollBar} from './components'
+import Adapter from './utils/adapter'
 import './css/index.css';
 
 class App extends React.Component {
     
+    constructor(props) {
+        super(props);
+
+        this.adapter = new Adapter();
+    }
+
     render() {
 
         return (
-            <Navbar>
+            <Navbar adapter={this.adapter}>
                 <Section navTitle="Hi!" id="intro">
                     <Title>Hello, I'm Thomas L'Anglais</Title>
                     <p>Welcome to my website!</p>
                     <p>On this page you will learn a bit about me, the work I've done, problems I solved, and more <b>NOTE - fix this when things are final</b></p>
                 </Section>
-                <FadeScrollBar />
+                <FadeScrollBar adapter={this.adapter} />
                 <Section navTitle="About me" id="whoami">
                     <Title>Who am I?</Title>
                     <p>I am a very stereotypical computer geek. I love building computers, playing games of all sort, 
