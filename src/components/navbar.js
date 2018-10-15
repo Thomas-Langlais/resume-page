@@ -60,17 +60,29 @@ class FadeScrollBar extends React.Component {
         super(props);
 
         this.state = {
-            data: []
+            loading: true,
+            visible: false,
+            top: null
         };
 
         this.checkToAnimate = this.checkToAnimate.bind(this);
     }
 
     componentDidMount() {
-
+        const node = ReactDOM.findDOMNode(this);
+        
         this.hollowData = {
-            exposeLocation: FADE_SCROLL_START
+            exposeLocation: FADE_SCROLL_START,
+            top: node.offsetTop,
+            height: node.getBoundingClientRect().height
         };
+
+        if (this.state.loading) {
+            this.setState(state => Object.assign(state, {
+                loading: false,
+                top: this.hollowData.top
+            }));
+        }
 
         window.addEventListener('scroll', this.checkToAnimate)
     }
@@ -82,9 +94,9 @@ class FadeScrollBar extends React.Component {
     render() {
         
         return (
-            <div id="scroll-navbar" className="bar">
+            <div id="scroll-navbar" style={!this.state.loading && this.state.visible ? {top: this.state.top} : {}} className="bar">
                 <div className="bar-content">
-                    {React.Children.map(this.state.data, (item) => 
+                    {React.Children.map(this.props.data, (item) => 
                         (<div className="nav-item">{item}</div>)
                     )}
                 </div>
@@ -93,14 +105,30 @@ class FadeScrollBar extends React.Component {
     }
 
     checkToAnimate(e) {
-        const height = this.checkToAnimate.height || (this.checkToAnimate.height = ReactDOM.findDOMNode(this).getBoundingClientRect().height);
+        const {top,height} = this.hollowData
 
-        const top = ReactDOM.findDOMNode(this).getBoundingClientRect().top;
-
-        if (0 <= top && top <= this.hollowData.exposeLocation) {
-            console.log(height);
-        }
+        console.log(e.pageY, top, top - FADE_SCROLL_START);
         
+        if (top - FADE_SCROLL_START <= e.pageY && e.pageY <= top) {
+            if (!this.state.visible) {
+                this.setState(state => {
+                    return Object.assign(state, {
+                        visible: true,
+                        top: top - height
+                    });
+                });
+            }
+        } else {
+            if (this.state.visible) {
+                this.setState(state => {
+                    return Object.assign(state, {
+                        visible: false,
+                        top: top
+                    });
+                });
+            }
+        }
+
     }
 }
 
@@ -146,14 +174,6 @@ class Navbar extends React.Component {
             });
         }
 
-        if (this.refs[this.SCROLLBAR]) {
-            this.refs[this.SCROLLBAR].setState(state => 
-                Object.assign(state, {
-                    data: this.render.data.navData.map(item => item.title)
-                })
-            );
-        }
-
         //add the handlers
         window.addEventListener('resize', this.calculateLocations);
         window.addEventListener('scroll', this.changeNavOnScroll);
@@ -168,15 +188,17 @@ class Navbar extends React.Component {
     
     render() {
         //do this once...
-        const { navigatableChildren, navData } = this.render.data || (this.render.data = this.renderForChanges(this.props.children));
+        const { navigatableChildren, navData, scrollIn } = this.render.data || (this.render.data = this.renderForChanges(this.props.children));
         const styles = {
             fontSize: 16
         };
 
+        if (scrollIn) this.passNavData(navigatableChildren, navData.map((item) => item.title));
+
         if (!this.state.loading) {
 
             let sumLeft = 0;
-            this.render.data.navData.forEach((navItem,index,root) => {
+            this.render.data.navData.forEach((navItem) => {
                 
                 //add the fontSize as .5em + .5em == 16(0.5) + 16(0.5) for left and right padding 
                 var width = getTextWidth(navItem.title, styles.fontSize + 'px Oswald') + styles.fontSize;
@@ -296,7 +318,8 @@ class Navbar extends React.Component {
 
         return {
             navigatableChildren: navigatableChildren,
-            navData: navData
+            navData: navData,
+            scrollIn: scrollRef !== undefined
         };
     }
 
@@ -333,6 +356,14 @@ class Navbar extends React.Component {
         }
         
         return index;
+    }
+
+    passNavData(children, data) {
+        children.forEach((item,i,arr) => {
+            if (item.type === FadeScrollBar) {
+                arr[i] = React.cloneElement(item, {data: data});
+            }
+        })
     }
 }
 
