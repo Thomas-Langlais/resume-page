@@ -3,10 +3,6 @@
     z-index: 100;
 }
 
-#scroll-navbar {
-    position: relative;
-}
-
 .bar {
     box-sizing: border-box;
     width: 100%;
@@ -19,8 +15,18 @@
     position: relative;
 }
 
-#nav-content {
+#nav-content > * {
+    position: relative;
+    z-index: 2;
+}
 
+#nav-content > #scroll-navbar {
+    z-index: 3;
+    position: absolute;
+}
+
+#nav-content > #scroll-navbar ~ * {
+    z-index: 4;
 }
 
 .navbar-line {

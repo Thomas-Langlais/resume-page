@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import { createOneTimeEvent, getTextWidth } from '../utils/utils.js'
 import '../css/navbar.css'
 
+const FADE_SCROLL_START = 150;
+
 class NavbarItem extends React.Component {
 
     static defaultProps = {
@@ -58,33 +60,47 @@ class FadeScrollBar extends React.Component {
         super(props);
 
         this.state = {
-            loading: true
+            data: []
         };
 
-        if (props.adapter) {
-            props.adapter.addListener({
-                load: (data) => {
-                    this.setState(state => Object.assign(state, {loading: false}));
-                }
-            }, this);
-        }
+        this.checkToAnimate = this.checkToAnimate.bind(this);
+    }
+
+    componentDidMount() {
+
+        this.hollowData = {
+            exposeLocation: FADE_SCROLL_START
+        };
+
+        window.addEventListener('scroll', this.checkToAnimate)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.checkToAnimate);
     }
 
     render() {
+        
         return (
             <div id="scroll-navbar" className="bar">
                 <div className="bar-content">
-                    <div className="nav-item">
-                        {!this.state.loading &&
-                            this.props.adapter.data.map((nav) => {
-                                return <div className="nav-item">{nav}</div>
-                                // return <div className="nav-item">{nav.title}</div>
-                            })
-                        }
-                    </div>
+                    {React.Children.map(this.state.data, (item) => 
+                        (<div className="nav-item">{item}</div>)
+                    )}
                 </div>
             </div>
-        )
+        );
+    }
+
+    checkToAnimate(e) {
+        const height = this.checkToAnimate.height || (this.checkToAnimate.height = ReactDOM.findDOMNode(this).getBoundingClientRect().height);
+
+        const top = ReactDOM.findDOMNode(this).getBoundingClientRect().top;
+
+        if (0 <= top && top <= this.hollowData.exposeLocation) {
+            console.log(height);
+        }
+        
     }
 }
 
@@ -113,8 +129,6 @@ class Navbar extends React.Component {
             }, this
         );
 
-        if (props.adapter) props.adapter.addListener({}, this);
-
         window.navbar = this;
     }
 
@@ -132,12 +146,13 @@ class Navbar extends React.Component {
             });
         }
 
-        this.props.adapter.load(() => {
-            return {
-                thisArg: this,
-                data: this.render.data.navData.map((item) => item.title)
-            }
-        });
+        if (this.refs[this.SCROLLBAR]) {
+            this.refs[this.SCROLLBAR].setState(state => 
+                Object.assign(state, {
+                    data: this.render.data.navData.map(item => item.title)
+                })
+            );
+        }
 
         //add the handlers
         window.addEventListener('resize', this.calculateLocations);
@@ -181,7 +196,7 @@ class Navbar extends React.Component {
                     We will work on hiding the navbar on intro and fade in the nav to stick to the top after passing
                     The threshold, which will be the the 2nd section */}
                 {/* <div id="bar" style={this.state.locationIndex === 0 ? {position: 'relative'} : {}}> */}
-                <div id="navbar" className="bar">
+                <div id="navbar" style={{display: 'none'}} className="bar">
                     <div ref={this.NAVBAR} className="bar-content">
                         {
                         navData.map((nav,i) => {
@@ -201,7 +216,7 @@ class Navbar extends React.Component {
                         }
                     </div>
                 </div>
-                <div className="nav-content">
+                <div id="nav-content">
                     {navigatableChildren}
                 </div>
             </div>
@@ -243,14 +258,21 @@ class Navbar extends React.Component {
     //util methods
     renderForChanges(children) {
         var navData = [],
-            i = 0;
+            i = 0,
+            scrollRef;
+
         var navigatableChildren = React.Children.map(children, (child) => {
             
             if (!child.props) {
                 return child;
             }
 
-            if (child.props.navTitle) {
+            if (!scrollRef && child.type === FadeScrollBar) {
+                scrollRef = this.SCROLLBAR;
+                return React.cloneElement(child, {ref: scrollRef});
+            }
+
+            if (child.props.navTitle && child.type !== FadeScrollBar) {
 
                 var ref = this.NAVBAR_REF + i++;
                 navData.push({
@@ -316,5 +338,6 @@ class Navbar extends React.Component {
 
 Navbar.prototype.NAVBAR_REF = 'navbar-ref';
 Navbar.prototype.NAVBAR = 'navbar';
+Navbar.prototype.SCROLLBAR = 'scrollbar';
 
 export {Navbar,FadeScrollBar};
