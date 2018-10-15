@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { createOneTimeEvent, getTextWidth } from '../utils/utils.js'
 import '../css/navbar.css'
 
-const FADE_SCROLL_START = 350;
+const FADE_SCROLL_START = 550;
 
 class NavbarItem extends React.Component {
 
