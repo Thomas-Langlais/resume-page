@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { createOneTimeEvent, getTextWidth } from '../utils/utils.js'
 import '../css/navbar.css'
 
-const FADE_SCROLL_START = 150;
+const FADE_SCROLL_START = 350;
 
 class NavbarItem extends React.Component {
 
@@ -84,7 +84,7 @@ class FadeScrollBar extends React.Component {
             }));
         }
 
-        window.addEventListener('scroll', this.checkToAnimate)
+        window.addEventListener('scroll', this.checkToAnimate, true);
     }
 
     componentWillUnmount() {
@@ -105,30 +105,46 @@ class FadeScrollBar extends React.Component {
     }
 
     checkToAnimate(e) {
-        const {top,height} = this.hollowData
-
-        console.log(e.pageY, top, top - FADE_SCROLL_START);
         
-        if (top - FADE_SCROLL_START <= e.pageY && e.pageY <= top) {
-            if (!this.state.visible) {
-                this.setState(state => {
-                    return Object.assign(state, {
-                        visible: true,
-                        top: top - height
-                    });
-                });
-            }
-        } else {
-            if (this.state.visible) {
-                this.setState(state => {
-                    return Object.assign(state, {
-                        visible: false,
-                        top: top
-                    });
-                });
-            }
-        }
+        const {top,height} = this.hollowData;
+        
+        
+        if (top - FADE_SCROLL_START <= e.pageY && e.pageY <= top - height) {
+            let self = ReactDOM.findDOMNode(this);
+            // console.log(
+            //     'top of popped navbar = TPN\n',
+            //     'location: ' + top + '\n', 
+            //     'current location: ' + e.pageY + '\n',
+            //     'pixels til location: ' + (top - e.pageY) + '\n',
+            //     'pixels til TPN: ' + (top - e.pageY - height) + '\n',
+            //     '% til TPN: ' + ((top - e.pageY - height) / (FADE_SCROLL_START - height)),
+            //     'TPN shifted up: ' + (1 - ((top - e.pageY - height) / (FADE_SCROLL_START - height))) * height
+            // );
+                        
+            window.requestAnimationFrame((ts) => {
+                const perUntilComplete = ((top - e.pageY - height) / (FADE_SCROLL_START - height));
 
+                let newLocation = top - Math.ceil((1 - perUntilComplete) * height),
+                    opacity = 1 - Math.round((perUntilComplete + 0.00001) * 100) / 100
+                
+                self.style.top = newLocation + 'px';
+                self.style.opacity = opacity;
+            });
+
+        } else {
+            // window.requestAnimationFrame((ts) => {
+            //     ReactDOM.findDOMNode(this).style.top = this.hollowData.top + 'px';
+            // });
+            // if (this.state.visible) {
+            //     this.setState(state => {
+            //         return Object.assign(state, {
+            //             visible: false,
+            //             top: top
+            //         });
+            //     });
+            // }
+        }
+        
     }
 }
 
