@@ -11,9 +11,6 @@ export default class Card extends React.Component {
             index: -1
         }
 
-        //refs
-        this._card = React.createRef();
-
         //set this to the React component
         this.openCard = this.openCard.bind(this);
         this.closeCard = this.closeCard.bind(this);
@@ -43,7 +40,7 @@ export default class Card extends React.Component {
         const shouldExpand = this.state.isFocused;
 
         return (
-            <div ref={this._card} className={"card" + (shouldExpand ? " expanded" : "")}>
+            <div className={"card" + (shouldExpand ? " expanded" : "")}>
                 
                 <div id="cd-title" className="title">
                     {this.props.title}

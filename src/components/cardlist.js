@@ -4,6 +4,9 @@ import '../css/utils.css'
 
 export default class CardList extends React.Component {
 
+    /*
+        Need to revamp this to get an overlay working
+     */
     constructor(props) {
         super(props);
 

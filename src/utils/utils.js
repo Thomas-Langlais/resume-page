@@ -1,4 +1,4 @@
-function createOneTimeEvent(elem, eventType, exitCond, onCond, thisArg = window, ...params) {
+export function createOneTimeEvent(elem, eventType, exitCond, onCond, thisArg = window, ...params) {
 
     var event = function event(e) {
 
@@ -13,7 +13,7 @@ function createOneTimeEvent(elem, eventType, exitCond, onCond, thisArg = window,
     return;
 }
 
-function getTextWidth(text, font) {
+export function getTextWidth(text, font) {
     // if given, use cached canvas for better performance
     // else, create new canvas
     var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
@@ -21,6 +21,4 @@ function getTextWidth(text, font) {
     context.font = font;
     var metrics = context.measureText(text);
     return metrics.width;
-};
-
-export {createOneTimeEvent, getTextWidth};
+}

@@ -46,14 +46,12 @@ class NavbarItem extends React.Component {
         );
 
         window.scroll({
-            top: location,
+            top: location + 1, //adding 1 stops fade bar from bugging
             behavior: 'smooth'
         });
     }
 }
 
-// TODO: get this fake bar to get navData somehow... look it up
-// Ill have to use requestAnimationFrame to hand move the scroolbar out
 class FadeScrollBar extends React.Component {
 
     constructor(props) {
@@ -331,8 +329,9 @@ class Navbar extends React.Component {
     }
 
     checkForNavItems(location, navData) {
-        const navHeight = this.checkForNavItems.navHeight || (this.checkForNavItems.navHeight = ReactDOM.findDOMNode(this.refs[this.NAVBAR]).getBoundingClientRect().height);
-
+        const navHeight = Math.ceil(//need to use ceiling to stop rounding issue giving the wrong index
+            this.checkForNavItems.navHeight || (this.checkForNavItems.navHeight = ReactDOM.findDOMNode(this.refs[this.NAVBAR]).getBoundingClientRect().height)
+        );
         var navItemFound = false,
             index = -1;
             

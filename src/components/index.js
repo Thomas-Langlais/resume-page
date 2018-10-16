@@ -1,5 +1,6 @@
 export {default as Section} from './section'
-export {default as CardList} from './cardlist'
-export {default as Card} from './card'
+// export {default as CardList} from './cardlist'
+// export {default as Card} from './card'
+export {CardList, Card} from './newcards'
 export {Navbar, FadeScrollBar} from './navbar'
 export {default as Title} from './title'
