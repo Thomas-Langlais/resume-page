@@ -46,6 +46,7 @@ export default class CardList extends React.Component {
                 });
             });
 
+        //fix the overlay bug... as it doesn't work not because of position css attribute
         return (
             <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
                 {cardChildren}

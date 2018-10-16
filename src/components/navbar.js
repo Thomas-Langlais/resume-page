@@ -58,13 +58,6 @@ class FadeScrollBar extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            loading: true,
-            visible: false,
-            top: null
-        };
-
         this.checkToAnimate = this.checkToAnimate.bind(this);
     }
 
@@ -74,15 +67,8 @@ class FadeScrollBar extends React.Component {
         this.hollowData = {
             exposeLocation: FADE_SCROLL_START,
             top: node.offsetTop,
-            height: node.getBoundingClientRect().height
+            height: node.offsetHeight
         };
-
-        if (this.state.loading) {
-            this.setState(state => Object.assign(state, {
-                loading: false,
-                top: this.hollowData.top
-            }));
-        }
 
         window.addEventListener('scroll', this.checkToAnimate, true);
     }
@@ -94,7 +80,7 @@ class FadeScrollBar extends React.Component {
     render() {
         
         return (
-            <div id="scroll-navbar" style={!this.state.loading && this.state.visible ? {top: this.state.top} : {}} className="bar">
+            <div id="scroll-navbar" className="bar">
                 <div className="bar-content">
                     {React.Children.map(this.props.data, (item) => 
                         (<div className="nav-item">{item}</div>)
@@ -110,17 +96,8 @@ class FadeScrollBar extends React.Component {
         
         
         if (top - FADE_SCROLL_START <= e.pageY && e.pageY <= top - height) {
-            let self = ReactDOM.findDOMNode(this);
-            // console.log(
-            //     'top of popped navbar = TPN\n',
-            //     'location: ' + top + '\n', 
-            //     'current location: ' + e.pageY + '\n',
-            //     'pixels til location: ' + (top - e.pageY) + '\n',
-            //     'pixels til TPN: ' + (top - e.pageY - height) + '\n',
-            //     '% til TPN: ' + ((top - e.pageY - height) / (FADE_SCROLL_START - height)),
-            //     'TPN shifted up: ' + (1 - ((top - e.pageY - height) / (FADE_SCROLL_START - height))) * height
-            // );
-                        
+            
+            let self = ReactDOM.findDOMNode(this);    
             window.requestAnimationFrame((ts) => {
                 const perUntilComplete = ((top - e.pageY - height) / (FADE_SCROLL_START - height));
 
@@ -131,20 +108,7 @@ class FadeScrollBar extends React.Component {
                 self.style.opacity = opacity;
             });
 
-        } else {
-            // window.requestAnimationFrame((ts) => {
-            //     ReactDOM.findDOMNode(this).style.top = this.hollowData.top + 'px';
-            // });
-            // if (this.state.visible) {
-            //     this.setState(state => {
-            //         return Object.assign(state, {
-            //             visible: false,
-            //             top: top
-            //         });
-            //     });
-            // }
         }
-        
     }
 }
 
@@ -157,6 +121,7 @@ class Navbar extends React.Component {
             locationIndex: -1,
             navToLink: false,
             docToLink: false,
+            waitForScroll: false,
             loading: true
         };
 
@@ -165,6 +130,7 @@ class Navbar extends React.Component {
         this.getLocation = this.getLocation.bind(this);
         this.endDocEvent = this.endDocEvent.bind(this);
         this.transitionFinished = this.transitionFinished.bind(this);
+        this.scrollFadeBarStateCheck = this.scrollFadeBarStateCheck.bind(this);
 
         //fixes the canvas bug for loading
         createOneTimeEvent(window, 'load', () => true, 
@@ -182,7 +148,7 @@ class Navbar extends React.Component {
         //we need to recalculate
         this.calculateLocations();
         index = this.checkForNavItems(window.pageYOffset, this.render.data.navData);
-
+        this.scrollFadeBarStateCheck(window.pageYOffset);
         
         if (this.state.loading) {
             this.setState(state => {
@@ -209,7 +175,14 @@ class Navbar extends React.Component {
             fontSize: 16
         };
 
-        if (scrollIn) this.passNavData(navigatableChildren, navData.map((item) => item.title));
+        if (scrollIn) {
+            let data = navData.map((item) => item.title);
+            navigatableChildren.forEach((item,i,arr) => {
+                if (item.type === FadeScrollBar) {
+                    arr[i] = React.cloneElement(item, {data: data});
+                }
+            })
+        }
 
         if (!this.state.loading) {
 
@@ -233,8 +206,7 @@ class Navbar extends React.Component {
                 {/* FIXME: work on the refresh bug that sets the locationIndex to locationIndex - 1...
                     We will work on hiding the navbar on intro and fade in the nav to stick to the top after passing
                     The threshold, which will be the the 2nd section */}
-                {/* <div id="bar" style={this.state.locationIndex === 0 ? {position: 'relative'} : {}}> */}
-                <div id="navbar" style={{display: 'none'}} className="bar">
+                <div id="navbar" className="bar" style={this.state.waitForScroll ? {visibility: 'hidden'} : {}}>
                     <div ref={this.NAVBAR} className="bar-content">
                         {
                         navData.map((nav,i) => {
@@ -279,8 +251,15 @@ class Navbar extends React.Component {
         this.setState(state => Object.assign(state, {docToLink: false}));
     }
 
+    scrollFadeBarStateCheck(Y) {
+        const {top, height} = this.refs[this.SCROLLBAR].hollowData
+        this.setState(state => Object.assign(state, {waitForScroll: (Y <= (top - height))}));
+    }
+
     //events
     changeNavOnScroll(e) { //scroll event
+        this.scrollFadeBarStateCheck(e.pageY);
+
         if (!this.state.docToLink && !this.state.navToLink) {
             const index = this.checkForNavItems(e.pageY, this.render.data.navData);
             if (this.state.locationIndex !== index) {
@@ -372,14 +351,6 @@ class Navbar extends React.Component {
         }
         
         return index;
-    }
-
-    passNavData(children, data) {
-        children.forEach((item,i,arr) => {
-            if (item.type === FadeScrollBar) {
-                arr[i] = React.cloneElement(item, {data: data});
-            }
-        })
     }
 }
 
