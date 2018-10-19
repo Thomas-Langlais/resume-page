@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {createOneTimeEvent} from '../utils/utils'
 import '../css/cardlist.css'
 import '../css/card.css'
 import '../css/utils.css'
@@ -9,16 +10,16 @@ class Card extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            isFocused: false
-        };
+        // this.state = {
+        //     isFocused: false
+        // };
 
         this.openCard = this.openCard.bind(this);
         this.closeCard = this.closeCard.bind(this);
     }
 
     render() {
-        const shouldExpand = this.state.isFocused;
+        const shouldExpand = this.props.isFocused;
 
         return (
             <div className={"card" + (shouldExpand ? " expanded" : "")}>
@@ -33,29 +34,20 @@ class Card extends React.Component {
                     <div id="cd-btm">
                         { !shouldExpand && (
                         <button id="cd-btn" className="meshed-btn"
-                            onClick={this.openCard}>
+                            onClick={this.props.metadata.focusInto}>
                             <i className="fas fa-chevron-down"></i>
                         </button>
                         )}
                         { shouldExpand && !this.props.metadata.isFirst && (
-                        <button id="prev">PREV</button>
+                        <button id="prev" onClick={this.props.metadata.next}>PREV</button>
                         )}
                         { shouldExpand && !this.props.metadata.isLast && (
-                        <button id="next">NEXT</button>
+                        <button id="next" onClick={this.props.metadata.prev}>NEXT</button>
                         )}
                     </div>
                 </div>
             </div>
         );
-    }
-
-    openCard() {
-        this.setState(state => Object.assign(state, {isFocused: true}));
-        this.props.metadata.focusInto();
-    }
-
-    closeCard() {
-        this.setState(state => Object.assign(state, {isFocused: false}));
     }
 }
 
@@ -69,38 +61,62 @@ class CardList extends React.Component {
             indexOfCardFocused: -1
         };
 
-        this.closeCard = this.closeCard.bind(this);
     }
 
     render() {
+        //setup cache if doesn't exist
+        (this.render.cache || (this.render.cache = {}));
+        
+        //get the cached overlay
+        const overlay = this.render.cache.overlay ||
+            (this.render.cache.overlay = document.getElementById('overlay'));
         
         const childrenMetaData = this.metaData || (this.metaData =
             this.props.children.map((child,i,arr) => {
-                return {
+
+                var meta = {
                     index: i,
                     length: arr.length,
-                    ref: this.CARD_REF + i,
-                    parent: this,
                     get isLast() {
-                        return this.index+1 < this.length
+                        return this.index+1 === this.length
                     },
                     get isFirst() {
                         return this.index === 0
-                    },
-                    focusInto: function() {
-
-                        document.getElementById('navbar').style.visibility = 'hidden';
-                        document.body.style.overflow = 'hidden';
-                        this.parent.setState(state => Object.assign(state, {focusing: true, indexOfCardFocused: this.index}));
-                    },
-                    next: function() {
-
-                    },
-                    prev: function() {
-
                     }
                 };
-            })
+
+                meta.focusInto = function() {
+                    //setup the overlay to show and hide after
+                    overlay.classList.remove('hidden');
+                    createOneTimeEvent(
+                        overlay, 
+                        'click',
+                        () => true, 
+                        () => {
+                            overlay.classList.add('hidden');
+                            document.body.style.overflow = '';
+                            // this.parent.refs[this.parent.CARD_REF+this.parent.state.indexOfCardFocused].closeCard();
+                            this.component.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -1}));
+                        }
+                    );
+
+                    //force the DOM to not scroll when focused
+                    document.body.style.overflow = 'hidden';
+                    //try and get an animation going here...
+                    this.component.setState(state => Object.assign(state, {focusing: true, indexOfCardFocused: this.meta.index}));
+                }.bind({component: this, meta: meta});
+                
+                meta.next = function() {
+
+                }.bind({component: this, meta: meta});
+                
+                meta.prev = function() {
+
+                }.bind({component: this, meta: meta});
+                
+
+                return meta;
+            }, this)
         );
 
         let i = 0;
@@ -109,25 +125,14 @@ class CardList extends React.Component {
             const metadata = childrenMetaData[index],
                 ref = this.CARD_REF + index;
 
-            return React.cloneElement(child, {metadata: metadata, ref: ref});
+            return React.cloneElement(child, {metadata: metadata, ref: ref, isFocused: this.state.indexOfCardFocused === index});
         });
 
         return (
-            <div>
-                <div id="cd-overlay" className={!this.state.focusing ? "hidden" : ""} onClick={this.closeCard}></div>
-                <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
-                    {children}
-                </div>
+            <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
+                {children}
             </div>
         );
-    }
-
-    closeCard() {
-        
-        document.getElementById('navbar').style.visibility = '';
-        document.body.style.overflow = '';
-        this.refs[this.CARD_REF+this.state.indexOfCardFocused].closeCard();
-        this.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -1}));
     }
 }
 

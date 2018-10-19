@@ -17,16 +17,10 @@
 
 #nav-content > * {
     position: relative;
-    z-index: 2;
 }
 
-#nav-content > #scroll-navbar {
-    z-index: 3;
+#scroll-navbar {
     position: absolute;
-}
-
-#nav-content > #scroll-navbar ~ * {
-    z-index: 4;
 }
 
 .navbar-line {

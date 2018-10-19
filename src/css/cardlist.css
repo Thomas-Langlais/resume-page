@@ -4,15 +4,6 @@
     margin-top: 25px !important;
 }
 
-#cd-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(50, 50, 50, 0.5);
-}
-
 .card-list.col-1 > .card {
     width: calc(8.33% - 20px);
 }
