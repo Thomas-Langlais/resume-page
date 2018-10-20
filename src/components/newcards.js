@@ -1,67 +1,58 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import {createOneTimeEvent} from '../utils/utils'
 import '../css/cardlist.css'
 import '../css/card.css'
 import '../css/utils.css'
 
-class Card extends React.Component {
+const Card = (props) => {
 
-    constructor(props) {
-        super(props);
+    const shouldExpand = props.isFocused;
+    const next = props.next;
+    const prev = props.prev;
+    const shouldShowBtns = shouldExpand || next || prev;
 
-        // this.state = {
-        //     isFocused: false
-        // };
-
-        this.openCard = this.openCard.bind(this);
-        this.closeCard = this.closeCard.bind(this);
-    }
-
-    render() {
-        const shouldExpand = this.props.isFocused;
-
-        return (
-            <div className={"card" + (shouldExpand ? " expanded" : "")}>
-                <div className="wrapper">
-                    <div id="cd-title" className="title">
-                        {this.props.title}
-                    </div>
-                    <hr id="cd-brk" className="line-brk"></hr>
-                    <div id="cd-content" className="content">
-                        {this.props.children}
-                    </div>
-                    <div id="cd-btm">
-                        { !shouldExpand && (
-                        <button id="cd-btn" className="meshed-btn"
-                            onClick={this.props.metadata.focusInto}>
-                            <i className="fas fa-chevron-down"></i>
-                        </button>
-                        )}
-                        { shouldExpand && !this.props.metadata.isFirst && (
-                        <button id="prev" onClick={this.props.metadata.next}>PREV</button>
-                        )}
-                        { shouldExpand && !this.props.metadata.isLast && (
-                        <button id="next" onClick={this.props.metadata.prev}>NEXT</button>
-                        )}
-                    </div>
+    return (
+        <div className={"card" + (shouldExpand ? " expanded" : "") + (next ? " expanded next" : "") + (prev ? " expanded prev" : "")}>
+            <div className="wrapper">
+                <div id="cd-title" className="title">
+                    {props.title}
+                </div>
+                <hr id="cd-brk" className="line-brk"></hr>
+                <div id="cd-content" className="content">
+                    {props.children}
+                </div>
+                <div id="cd-btm">
+                    { !shouldShowBtns && (
+                    <button id="cd-btn" className="meshed-btn no-bkg"
+                        onClick={props.metadata.focusInto}>
+                        <i className="fas fa-chevron-down"></i>
+                    </button>
+                    )}
+                    { shouldShowBtns && !props.metadata.isFirst && (
+                    <button id="prev" className="meshed-btn no-bkg" 
+                            onClick={props.metadata.prev}>
+                        PREV
+                    </button>
+                    )}
+                    { shouldShowBtns && !props.metadata.isLast && (
+                    <button id="next" className="meshed-btn" 
+                            onClick={props.metadata.next}>
+                        NEXT
+                    </button>
+                    )}
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 }
+
 
 class CardList extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            focusing: false,
-            indexOfCardFocused: -1
-        };
-
-    }
+    state = {
+        focusing: false,
+        indexOfCardFocused: -10000
+    };
 
     render() {
         //setup cache if doesn't exist
@@ -96,7 +87,7 @@ class CardList extends React.Component {
                             overlay.classList.add('hidden');
                             document.body.style.overflow = '';
                             // this.parent.refs[this.parent.CARD_REF+this.parent.state.indexOfCardFocused].closeCard();
-                            this.component.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -1}));
+                            this.component.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -10000}));
                         }
                     );
 
@@ -104,14 +95,26 @@ class CardList extends React.Component {
                     document.body.style.overflow = 'hidden';
                     //try and get an animation going here...
                     this.component.setState(state => Object.assign(state, {focusing: true, indexOfCardFocused: this.meta.index}));
+                    
                 }.bind({component: this, meta: meta});
                 
                 meta.next = function() {
+
+                    this.component.setState(state => 
+                        Object.assign(state, {
+                            indexOfCardFocused: this.meta.index + 1
+                        })
+                    );
 
                 }.bind({component: this, meta: meta});
                 
                 meta.prev = function() {
 
+                    this.component.setState(state => 
+                        Object.assign(state, {
+                            indexOfCardFocused: this.meta.index - 1
+                        })
+                    );
                 }.bind({component: this, meta: meta});
                 
 
@@ -120,17 +123,23 @@ class CardList extends React.Component {
         );
 
         let i = 0;
-        const children = React.Children.map(this.props.children, (child) => {
-            const index = i++;
-            const metadata = childrenMetaData[index],
-                ref = this.CARD_REF + index;
-
-            return React.cloneElement(child, {metadata: metadata, ref: ref, isFocused: this.state.indexOfCardFocused === index});
-        });
 
         return (
             <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
-                {children}
+                {React.Children.map(this.props.children, (child) => {
+                    const index = i++;
+                    const metadata = childrenMetaData[index];
+                    const ref = this.CARD_REF + index;
+                    const currentCard = this.state.indexOfCardFocused === index;
+        
+                    return React.cloneElement(child, {
+                        metadata: metadata,
+                        ref: ref,
+                        isFocused: currentCard,
+                        next: this.state.indexOfCardFocused === index - 1,
+                        prev: this.state.indexOfCardFocused === index + 1
+                    });
+                })}
             </div>
         );
     }

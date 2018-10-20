@@ -9,6 +9,7 @@ class App extends React.Component {
         super(props);
 
         window.app = this;
+        window.React = React;
     }
 
     render() {

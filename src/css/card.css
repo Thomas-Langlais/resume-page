@@ -28,12 +28,20 @@
     transform: translate(-50%,-50%);
     position: fixed;
     z-index: 10000;
+    transition: left cubic-bezier(0.6,-0.4,0.35,1) 0.65s
+}
+
+.card.expanded.prev {
+    left: calc(-100vw + 50%);
+}
+
+.card.expanded.next {
+    left: calc(100vw + 50%);
 }
 
 .card .title {
     text-align: center;
 }
-
 
 .card #cd-content {
     padding: 5px 10px;
@@ -41,15 +49,45 @@
 }
 
 .card #cd-btm {
-    margin: 0 -5px -5px -10px;
+    /* margin: 0 -5px -5px -10px; */
+}
+
+.card #prev,.card #next {
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    font-size: 15px;
+    padding: 0.2rem 1rem;
+    border-radius: 0.45rem;
+    cursor: pointer;
 }
 
 .card #prev {
     float: left;
+    color: #898989;
+}
+
+.card #prev:hover {
+    border: 1px dotted rgb(128, 125, 125);
+}
+
+.card #prev:focus {
+    border: 1px solid transparent;
+    background: #bdbdbd !important;
+    color: white;
 }
 
 .card #next {
     float: right;
+    color: white;
+    background: rgb(41, 139, 231);
+}
+
+.card #next:hover {
+    background: rgb(66, 164, 255);
+}
+
+.card #next:focus {
+    background: rgb(96, 178, 255);
 }
 
 .card #cd-btn {

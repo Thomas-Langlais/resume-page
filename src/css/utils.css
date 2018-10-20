@@ -22,8 +22,11 @@
 }
 
 .meshed-btn {
-    background-color: transparent !important;
     border: none;
+}
+
+.meshed-btn.no-bkg {
+    background-color: transparent !important;
 }
 
 .hidden {
