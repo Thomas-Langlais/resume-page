@@ -4,48 +4,51 @@ import '../css/cardlist.css'
 import '../css/card.css'
 import '../css/utils.css'
 
-const Card = (props) => {
+class Card extends React.Component {
 
-    const shouldExpand = props.isFocused;
-    const next = props.next;
-    const prev = props.prev;
-    const shouldShowBtns = shouldExpand || next || prev;
+    render() {
+        
+        const { isFocused, next, prev, shallow, staticCard } = this.props;
+        const shouldShowBtns = isFocused || next || prev;
 
-    return (
-        <div className={"card" + (shouldExpand ? " expanded" : "") + (next ? " expanded next" : "") + (prev ? " expanded prev" : "")}>
-            <div className="wrapper">
-                <div id="cd-title" className="title">
-                    {props.title}
+        return (
+            <div className={"card" + (shallow ? '' : (isFocused ? " expanded" : "") + (next ? " expanded next" : "") + (prev ? " expanded prev" : ""))}
+                style={shallow ? {visibility: 'hidden'} : {}}>
+                { !shallow &&
+                <div className="wrapper">
+                    <div id="cd-title" className="title">
+                        {this.props.title}
+                    </div>
+                    <hr id="cd-brk" className="line-brk"></hr>
+                    <div id="cd-content" className="content">
+                        {this.props.children}
+                    </div>
+                    <div id="cd-btm">
+                        { (staticCard || !shouldShowBtns) && (
+                        <button id="cd-btn" className="meshed-btn no-bkg"
+                            onClick={this.props.metadata.focusInto}>
+                            <i className="fas fa-chevron-down"></i>
+                        </button>
+                        )}
+                        { !staticCard && shouldShowBtns && !this.props.metadata.isFirst && (
+                        <button id="prev" className="meshed-btn no-bkg" 
+                                onClick={this.props.metadata.prev}>
+                            PREV
+                        </button>
+                        )}
+                        { !staticCard && shouldShowBtns && !this.props.metadata.isLast && (
+                        <button id="next" className="meshed-btn" 
+                                onClick={this.props.metadata.next}>
+                            NEXT
+                        </button>
+                        )}
+                    </div>
                 </div>
-                <hr id="cd-brk" className="line-brk"></hr>
-                <div id="cd-content" className="content">
-                    {props.children}
-                </div>
-                <div id="cd-btm">
-                    { !shouldShowBtns && (
-                    <button id="cd-btn" className="meshed-btn no-bkg"
-                        onClick={props.metadata.focusInto}>
-                        <i className="fas fa-chevron-down"></i>
-                    </button>
-                    )}
-                    { shouldShowBtns && !props.metadata.isFirst && (
-                    <button id="prev" className="meshed-btn no-bkg" 
-                            onClick={props.metadata.prev}>
-                        PREV
-                    </button>
-                    )}
-                    { shouldShowBtns && !props.metadata.isLast && (
-                    <button id="next" className="meshed-btn" 
-                            onClick={props.metadata.next}>
-                        NEXT
-                    </button>
-                    )}
-                </div>
+                }
             </div>
-        </div>
-    );
+        );
+    }
 }
-
 
 class CardList extends React.Component {
 
@@ -93,9 +96,10 @@ class CardList extends React.Component {
 
                     //force the DOM to not scroll when focused
                     document.body.style.overflow = 'hidden';
+                    
                     //try and get an animation going here...
                     this.component.setState(state => Object.assign(state, {focusing: true, indexOfCardFocused: this.meta.index}));
-                    
+
                 }.bind({component: this, meta: meta});
                 
                 meta.next = function() {
@@ -122,24 +126,40 @@ class CardList extends React.Component {
             }, this)
         );
 
-        let i = 0;
+        let i = 0, uId = 0;
+        const staticChildren = [], 
+            modalChildren = [];
+
+        React.Children.forEach(this.props.children, (child) => {
+            
+            const index = i++;
+            const metadata = childrenMetaData[index];
+            const ref = this.CARD_REF + index;
+            const isFocused = this.state.indexOfCardFocused === index;
+            
+            staticChildren.push(React.cloneElement(child, {
+                key: uId,
+                staticCard: true,
+                metadata, ref, isFocused,
+                next: this.state.indexOfCardFocused === index - 1,
+                prev: this.state.indexOfCardFocused === index + 1
+            }));
+
+            modalChildren.push(React.cloneElement(child, {
+                key: uId,
+                staticCard: false,
+                metadata, ref, isFocused,
+                next: this.state.indexOfCardFocused === index - 1,
+                prev: this.state.indexOfCardFocused === index + 1
+            }));
+
+            uId++;
+        });
 
         return (
             <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
-                {React.Children.map(this.props.children, (child) => {
-                    const index = i++;
-                    const metadata = childrenMetaData[index];
-                    const ref = this.CARD_REF + index;
-                    const currentCard = this.state.indexOfCardFocused === index;
-        
-                    return React.cloneElement(child, {
-                        metadata: metadata,
-                        ref: ref,
-                        isFocused: currentCard,
-                        next: this.state.indexOfCardFocused === index - 1,
-                        prev: this.state.indexOfCardFocused === index + 1
-                    });
-                })}
+                <div id="static">{staticChildren}</div>
+                <div id="modal" className={this.state.indexOfCardFocused < 0 ? 'hidden' : ''}>{modalChildren}</div>
             </div>
         );
     }

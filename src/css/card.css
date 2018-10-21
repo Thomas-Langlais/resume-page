@@ -20,7 +20,24 @@
     height: 100%;
 }
 
-.card.expanded {
+#static > .card.expanded {
+    visibility: hidden;
+}
+
+#static > .card.expanded.prev {
+    visibility: unset;
+}
+
+#static > .card.expanded.next {
+    visibility: unset;
+}
+
+#modal > .card {
+    display: none;
+}
+
+#modal > .card.expanded {
+    display: unset;
     top: 50%;
     left: 50%;
     width: 80% !important;
@@ -31,11 +48,11 @@
     transition: left cubic-bezier(0.6,-0.4,0.35,1) 0.65s
 }
 
-.card.expanded.prev {
+#modal > .card.expanded.prev {
     left: calc(-100vw + 50%);
 }
 
-.card.expanded.next {
+#modal > .card.expanded.next {
     left: calc(100vw + 50%);
 }
 
