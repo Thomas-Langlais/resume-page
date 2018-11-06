@@ -1,8 +1,12 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
+
+import {animateCard} from '../utils/animations'
 import {createOneTimeEvent} from '../utils/utils'
 import '../css/cardlist.css'
 import '../css/card.css'
 import '../css/utils.css'
+
 
 class Card extends React.Component {
 
@@ -11,8 +15,9 @@ class Card extends React.Component {
         const { isFocused, next, prev, shallow, staticCard } = this.props;
         const shouldShowBtns = isFocused || next || prev;
 
+        //(isFocused && !staticCard ? " expanded" + ((next ? " next" : "") + (prev ? " expanded prev" : "")) : '')
         return (
-            <div className={"card" + (shallow ? '' : (isFocused ? " expanded" : "") + (next ? " expanded next" : "") + (prev ? " expanded prev" : ""))}
+            <div className={"card" + (shouldShowBtns && !staticCard ? " expanded" : '') + (shouldShowBtns && !staticCard && next ? " next" : '') + (shouldShowBtns && !staticCard && prev ? " prev" : '')}
                 style={shallow ? {visibility: 'hidden'} : {}}>
                 { !shallow &&
                 <div className="wrapper">
@@ -24,7 +29,7 @@ class Card extends React.Component {
                         {this.props.children}
                     </div>
                     <div id="cd-btm">
-                        { (staticCard || !shouldShowBtns) && (
+                        { staticCard && (
                         <button id="cd-btn" className="meshed-btn no-bkg"
                             onClick={this.props.metadata.focusInto}>
                             <i className="fas fa-chevron-down"></i>
@@ -53,17 +58,12 @@ class Card extends React.Component {
 class CardList extends React.Component {
 
     state = {
+        animating: false,
         focusing: false,
         indexOfCardFocused: -10000
-    };
+    }
 
     render() {
-        //setup cache if doesn't exist
-        (this.render.cache || (this.render.cache = {}));
-        
-        //get the cached overlay
-        const overlay = this.render.cache.overlay ||
-            (this.render.cache.overlay = document.getElementById('overlay'));
         
         const childrenMetaData = this.metaData || (this.metaData =
             this.props.children.map((child,i,arr) => {
@@ -80,25 +80,10 @@ class CardList extends React.Component {
                 };
 
                 meta.focusInto = function() {
-                    //setup the overlay to show and hide after
-                    overlay.classList.remove('hidden');
-                    createOneTimeEvent(
-                        overlay, 
-                        'click',
-                        () => true, 
-                        () => {
-                            overlay.classList.add('hidden');
-                            document.body.style.overflow = '';
-                            // this.parent.refs[this.parent.CARD_REF+this.parent.state.indexOfCardFocused].closeCard();
-                            this.component.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -10000}));
-                        }
-                    );
-
+                    
                     //force the DOM to not scroll when focused
                     document.body.style.overflow = 'hidden';
-                    
-                    //try and get an animation going here...
-                    this.component.setState(state => Object.assign(state, {focusing: true, indexOfCardFocused: this.meta.index}));
+                    this.component.setState(state => Object.assign(state, {animating: true, indexOfCardFocused: this.meta.index}));
 
                 }.bind({component: this, meta: meta});
                 
@@ -137,6 +122,10 @@ class CardList extends React.Component {
             const ref = this.CARD_REF + index;
             const isFocused = this.state.indexOfCardFocused === index;
             
+            if (isFocused) {
+                staticChildren.push(<Card ref={this.HOLLOW} shallow key={uId++}/>)
+            }
+
             staticChildren.push(React.cloneElement(child, {
                 key: uId,
                 staticCard: true,
@@ -145,13 +134,15 @@ class CardList extends React.Component {
                 prev: this.state.indexOfCardFocused === index + 1
             }));
 
-            modalChildren.push(React.cloneElement(child, {
-                key: uId,
-                staticCard: false,
-                metadata, ref, isFocused,
-                next: this.state.indexOfCardFocused === index - 1,
-                prev: this.state.indexOfCardFocused === index + 1
-            }));
+            if (this.state.indexOfCardFocused >= 0 && !this.state.animating) {
+                modalChildren.push(React.cloneElement(child, {
+                    key: uId,
+                    staticCard: false,
+                    metadata, isFocused,
+                    next: this.state.indexOfCardFocused === index - 1,
+                    prev: this.state.indexOfCardFocused === index + 1
+                }));
+            }
 
             uId++;
         });
@@ -159,12 +150,55 @@ class CardList extends React.Component {
         return (
             <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
                 <div id="static">{staticChildren}</div>
-                <div id="modal" className={this.state.indexOfCardFocused < 0 ? 'hidden' : ''}>{modalChildren}</div>
+                {this.state.indexOfCardFocused >= 0 && !this.state.animating &&
+                <div id="modal">{modalChildren}</div>
+                }
             </div>
         );
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        //get the cached overlay
+        const overlay = this.componentDidUpdate.overlay ||
+            (this.componentDidUpdate.overlay = document.getElementById('overlay'));
+        
+        //if animating
+        if (this.state.animating) {
+
+            const { indexOfCardFocused } = this.state;
+            //get the two cards, the hollow and actual
+            const hollowCard = ReactDOM.findDOMNode(this.refs[this.HOLLOW]),
+                actualCard = ReactDOM.findDOMNode(this.refs[this.CARD_REF+indexOfCardFocused]);
+            
+            const rect = hollowCard.getBoundingClientRect(),
+                style = hollowCard.currentStyle || window.getComputedStyle(hollowCard);
+            
+            animateCard(actualCard, rect, style, () => {
+                //reset and add modal div
+                this.setState(state => Object.assign(state, {animating: false, focusing: true}));
+
+                //setup the overlay to show and hide after
+                overlay.classList.remove('hidden');
+                createOneTimeEvent(
+                    overlay, 
+                    'click',
+                    () => true, 
+                    () => {
+                        overlay.classList.add('hidden');
+                        document.body.style.overflow = '';
+                        // this.parent.refs[this.parent.CARD_REF+this.parent.state.indexOfCardFocused].closeCard();
+                        this.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -10000}));
+                    }
+                );
+                        //TODO: fix this to set static isFocused to disapear
+                //force the DOM to not scroll when focused
+                document.body.style.overflow = 'hidden';
+            });
+        }
     }
 }
 
 CardList.prototype.CARD_REF = 'card-ref';
+CardList.prototype.HOLLOW = 'hollow-ref';
 
-export {CardList,Card}
+export { CardList, Card }

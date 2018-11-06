@@ -1,7 +1,7 @@
-export function createOneTimeEvent(elem, eventType, exitCond, onCond, thisArg = window, ...params) {
+export function createOneTimeEvent(elem, eventType, preCond, exitCond, onCond, thisArg = window, ...params) {
 
     var event = function event(e) {
-
+        if (preCond) preCond.apply(thisArg, [e, params].flat());
         if (exitCond.apply(thisArg, [e, params].flat())) {
             if (onCond) onCond.apply(thisArg, [e, params].flat());
             elem.removeEventListener(eventType, event);

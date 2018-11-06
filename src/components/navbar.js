@@ -11,12 +11,6 @@ class NavbarItem extends React.Component {
         selected: false
     };
 
-    constructor(props) {
-        super(props);
-
-        this.goToLocation = this.goToLocation.bind(this);
-    }
-
     render() {
         const selected = this.props.selected;
         
@@ -28,13 +22,13 @@ class NavbarItem extends React.Component {
         )
     }
 
-    goToLocation(e) {
+    goToLocation = (e) => {
         const navHeight = this.goToLocation.navHeight || (this.goToLocation.navHeight = document.getElementById('navbar').getBoundingClientRect().height);
-
-        var location = Math.floor(this.props.location(this.props.locRef, this.props.index) - (this.props.index !== 0 ? navHeight : 0));
+        var location = Math.floor(this.props.location(this.props.locRef, this.props.index) - (this.props.index !== 0 ? navHeight : 0)) + 1; //adding 1 stops fade bar from bugging
 
         createOneTimeEvent(
             window, 'scroll',
+            null,
             function (e,location) {
                 return e.pageY === location;
             },
@@ -46,7 +40,7 @@ class NavbarItem extends React.Component {
         );
 
         window.scroll({
-            top: location + 1, //adding 1 stops fade bar from bugging
+            top: location,
             behavior: 'smooth'
         });
     }
@@ -112,10 +106,18 @@ class FadeScrollBar extends React.Component {
 
 class Navbar extends React.Component {
 
+    state = {
+        locationIndex: -1,
+        navToLink: false,
+        docToLink: false,
+        waitForScroll: false,
+        loading: true
+    };
+
     constructor(props) {
         super(props);
 
-        this.state = {
+        /* this.state = {
             locationIndex: -1,
             navToLink: false,
             docToLink: false,
@@ -123,15 +125,16 @@ class Navbar extends React.Component {
             loading: true
         };
 
+
         this.calculateLocations = this.calculateLocations.bind(this);
         this.changeNavOnScroll = this.changeNavOnScroll.bind(this);
         this.getLocation = this.getLocation.bind(this);
         this.endDocEvent = this.endDocEvent.bind(this);
         this.transitionFinished = this.transitionFinished.bind(this);
-        this.scrollFadeBarStateCheck = this.scrollFadeBarStateCheck.bind(this);
+        this.scrollFadeBarStateCheck = this.scrollFadeBarStateCheck.bind(this);*/
 
         //fixes the canvas bug for loading
-        createOneTimeEvent(window, 'load', () => true, 
+        createOneTimeEvent(window, 'load', null, () => true, 
             function() {
                 this.setState(state => Object.assign(state, {loading: false}));
             }, this
@@ -168,7 +171,7 @@ class Navbar extends React.Component {
     
     render() {
         //do this once...
-        const { navigatableChildren, navData, scrollIn } = this.render.data || (this.render.data = this.renderForChanges(this.props.children));
+        const { navigatableChildren, navData, scrollIn } = this.render.data || (this.render.data = renderForChanges(this.props.children));
         const styles = {
             fontSize: 16
         };
@@ -200,7 +203,7 @@ class Navbar extends React.Component {
         }
 
         return (
-            <div>
+            <React.Fragment>
                 {/* FIXME: work on the refresh bug that sets the locationIndex to locationIndex - 1...
                     We will work on hiding the navbar on intro and fade in the nav to stick to the top after passing
                     The threshold, which will be the the 2nd section */}
@@ -227,35 +230,35 @@ class Navbar extends React.Component {
                 <div id="nav-content">
                     {navigatableChildren}
                 </div>
-            </div>
+            </React.Fragment>
         );
     }
 
-    calculateLocations() {
+    calculateLocations = () => {
         this.render.data.navData.forEach((navItem,index,root) => {
-            navItem.boundary.greater = this.findOffsetLocation(navItem.ref, this.refs);
+            navItem.boundary.greater = findOffsetLocation(navItem.ref, this.refs);
             if (index+1 < root.length) {
-                navItem.boundary.lesser = this.findOffsetLocation(root[index+1].ref, this.refs);
+                navItem.boundary.lesser = findOffsetLocation(root[index+1].ref, this.refs);
             }
         });
     }
 
-    getLocation(ref, index) {
+    getLocation = (ref, index) => {
         this.setState(state => Object.assign(state, {locationIndex: index, docToLink: true, navToLink: true}));
-        return this.findOffsetLocation(ref, this.refs);
+        return findOffsetLocation(ref, this.refs);
     }
 
-    endDocEvent() {
+    endDocEvent = () => {
         this.setState(state => Object.assign(state, {docToLink: false}));
     }
 
-    scrollFadeBarStateCheck(Y) {
+    scrollFadeBarStateCheck = (Y) => {
         const {top, height} = this.refs[this.SCROLLBAR].hollowData
         this.setState(state => Object.assign(state, {waitForScroll: (Y <= (top - height))}));
     }
 
     //events
-    changeNavOnScroll(e) { //scroll event
+    changeNavOnScroll = (e) => { //scroll event
         this.scrollFadeBarStateCheck(e.pageY);
 
         if (!this.state.docToLink && !this.state.navToLink) {
@@ -266,69 +269,11 @@ class Navbar extends React.Component {
         }
     }
 
-    transitionFinished() {
+    transitionFinished = () => {
         this.setState(state => Object.assign(state, {navToLink: false}));
     }
 
-    //util methods
-    renderForChanges(children) {
-        var navData = [],
-            i = 0,
-            scrollRef;
-
-        var navigatableChildren = React.Children.map(children, (child) => {
-            
-            if (!child.props) {
-                return child;
-            }
-
-            if (!scrollRef && child.type === FadeScrollBar) {
-                scrollRef = this.SCROLLBAR;
-                return React.cloneElement(child, {ref: scrollRef});
-            }
-
-            if (child.props.navTitle && child.type !== FadeScrollBar) {
-
-                var ref = this.NAVBAR_REF + i++;
-                navData.push({
-                    title: child.props.navTitle,
-                    ref: ref,
-                    boundary: {
-                        greater: null,
-                        lesser: null
-                    },
-                    navLine: {
-                        left: null,
-                        width: null
-                    }
-                });
-
-                return React.cloneElement(child, {ref: ref});
-            }
-
-            return child;
-        });
-
-        return {
-            navigatableChildren: navigatableChildren,
-            navData: navData,
-            scrollIn: scrollRef !== undefined
-        };
-    }
-
-    findOffsetLocation(ref, refs) {
-        var offsetLocation = 0,
-            e = ReactDOM.findDOMNode(refs[ref]),
-            bound = ReactDOM.findDOMNode(refs[Navbar.prototype.NAVBAR]);
-        do {
-            if (e !== bound && !isNaN(e.offsetTop)) {
-                offsetLocation += e.offsetTop;
-            }
-        } while(e !== bound && (e = e.offsetParent));
-        return offsetLocation;
-    }
-
-    checkForNavItems(location, navData) {
+    checkForNavItems = (location, navData) => {
         const navHeight = Math.ceil(//need to use ceiling to stop rounding issue giving the wrong index
             this.checkForNavItems.navHeight || (this.checkForNavItems.navHeight = ReactDOM.findDOMNode(this.refs[this.NAVBAR]).getBoundingClientRect().height)
         );
@@ -356,5 +301,63 @@ class Navbar extends React.Component {
 Navbar.prototype.NAVBAR_REF = 'navbar-ref';
 Navbar.prototype.NAVBAR = 'navbar';
 Navbar.prototype.SCROLLBAR = 'scrollbar';
+
+//util methods
+function renderForChanges(children) {
+    var navData = [],
+        i = 0,
+        scrollRef;
+
+    var navigatableChildren = React.Children.map(children, (child) => {
+        
+        if (!child.props) {
+            return child;
+        }
+
+        if (!scrollRef && child.type === FadeScrollBar) {
+            scrollRef = Navbar.prototype.SCROLLBAR;
+            return React.cloneElement(child, {ref: scrollRef});
+        }
+
+        if (child.props.navTitle && child.type !== FadeScrollBar) {
+
+            var ref = Navbar.prototype.NAVBAR_REF + i++;
+            navData.push({
+                title: child.props.navTitle,
+                ref: ref,
+                boundary: {
+                    greater: null,
+                    lesser: null
+                },
+                navLine: {
+                    left: null,
+                    width: null
+                }
+            });
+
+            return React.cloneElement(child, {ref: ref});
+        }
+
+        return child;
+    });
+
+    return {
+        navigatableChildren: navigatableChildren,
+        navData: navData,
+        scrollIn: scrollRef !== undefined
+    };
+}
+
+function findOffsetLocation(ref, refs) {
+    var offsetLocation = 0,
+        e = ReactDOM.findDOMNode(refs[ref]),
+        bound = ReactDOM.findDOMNode(refs[Navbar.prototype.NAVBAR]);
+    do {
+        if (e !== bound && !isNaN(e.offsetTop)) {
+            offsetLocation += e.offsetTop;
+        }
+    } while(e !== bound && (e = e.offsetParent));
+    return offsetLocation;
+}
 
 export {Navbar,FadeScrollBar};
