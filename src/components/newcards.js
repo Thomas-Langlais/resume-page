@@ -15,9 +15,8 @@ class Card extends React.Component {
         const { isFocused, next, prev, shallow, staticCard } = this.props;
         const shouldShowBtns = isFocused || next || prev;
 
-        //(isFocused && !staticCard ? " expanded" + ((next ? " next" : "") + (prev ? " expanded prev" : "")) : '')
         return (
-            <div className={"card" + (shouldShowBtns && !staticCard ? " expanded" : '') + (shouldShowBtns && !staticCard && next ? " next" : '') + (shouldShowBtns && !staticCard && prev ? " prev" : '')}
+            <div className={"card" + ((shouldShowBtns && !staticCard) || isFocused ? " expanded" : '') + (shouldShowBtns && !staticCard && next ? " next" : '') + (shouldShowBtns && !staticCard && prev ? " prev" : '')}
                 style={shallow ? {visibility: 'hidden'} : {}}>
                 { !shallow &&
                 <div className="wrapper">
@@ -30,8 +29,7 @@ class Card extends React.Component {
                     </div>
                     <div id="cd-btm">
                         { staticCard && (
-                        <button id="cd-btn" className="meshed-btn no-bkg"
-                            onClick={this.props.metadata.focusInto}>
+                        <button id="cd-btn" className="meshed-btn no-bkg" onClick={this.props.metadata.focusInto}>
                             <i className="fas fa-chevron-down"></i>
                         </button>
                         )}
@@ -58,13 +56,17 @@ class Card extends React.Component {
 class CardList extends React.Component {
 
     state = {
-        animating: false,
+        //animating: false,
+        animateIn: false,
+        animateOut: false,
         focusing: false,
         indexOfCardFocused: -10000
     }
 
     render() {
         
+        const { indexOfCardFocused,animateIn,animateOut,focusing } = this.state;
+
         const childrenMetaData = this.metaData || (this.metaData =
             this.props.children.map((child,i,arr) => {
 
@@ -83,27 +85,19 @@ class CardList extends React.Component {
                     
                     //force the DOM to not scroll when focused
                     document.body.style.overflow = 'hidden';
-                    this.component.setState(state => Object.assign(state, {animating: true, indexOfCardFocused: this.meta.index}));
+                    this.component.setState({animateIn: true, indexOfCardFocused: this.meta.index});
 
                 }.bind({component: this, meta: meta});
                 
                 meta.next = function() {
 
-                    this.component.setState(state => 
-                        Object.assign(state, {
-                            indexOfCardFocused: this.meta.index + 1
-                        })
-                    );
+                    this.component.setState({indexOfCardFocused: this.meta.index + 1});
 
                 }.bind({component: this, meta: meta});
                 
                 meta.prev = function() {
 
-                    this.component.setState(state => 
-                        Object.assign(state, {
-                            indexOfCardFocused: this.meta.index - 1
-                        })
-                    );
+                    this.component.setState({indexOfCardFocused: this.meta.index - 1});
                 }.bind({component: this, meta: meta});
                 
 
@@ -134,7 +128,7 @@ class CardList extends React.Component {
                 prev: this.state.indexOfCardFocused === index + 1
             }));
 
-            if (this.state.indexOfCardFocused >= 0 && !this.state.animating) {
+            if (indexOfCardFocused >= 0 && focusing && !(animateIn && animateOut)) {
                 modalChildren.push(React.cloneElement(child, {
                     key: uId,
                     staticCard: false,
@@ -150,7 +144,7 @@ class CardList extends React.Component {
         return (
             <div className={"card-list" + (this.props.className ? " " + this.props.className : "")}>
                 <div id="static">{staticChildren}</div>
-                {this.state.indexOfCardFocused >= 0 && !this.state.animating &&
+                {indexOfCardFocused >= 0 && focusing && !(animateIn && animateOut) &&
                 <div id="modal">{modalChildren}</div>
                 }
             </div>
@@ -161,39 +155,55 @@ class CardList extends React.Component {
         //get the cached overlay
         const overlay = this.componentDidUpdate.overlay ||
             (this.componentDidUpdate.overlay = document.getElementById('overlay'));
-        
-        //if animating
-        if (this.state.animating) {
+
+        //if animating in
+        if (this.state.animateIn && !prevState.animateIn) {
 
             const { indexOfCardFocused } = this.state;
-            //get the two cards, the hollow and actual
+            //get the two cards
             const hollowCard = ReactDOM.findDOMNode(this.refs[this.HOLLOW]),
                 actualCard = ReactDOM.findDOMNode(this.refs[this.CARD_REF+indexOfCardFocused]);
             
             const rect = hollowCard.getBoundingClientRect(),
-                style = hollowCard.currentStyle || window.getComputedStyle(hollowCard);
-            
-            animateCard(actualCard, rect, style, () => {
+                style = hollowCard.currentStyle || window.getComputedStyle(hollowCard)
+
+            overlay.classList.remove('hidden');
+            animateCard.in(actualCard, rect, style, () => {
                 //reset and add modal div
-                this.setState(state => Object.assign(state, {animating: false, focusing: true}));
+                this.setState({animateIn: false, focusing: true});
 
                 //setup the overlay to show and hide after
-                overlay.classList.remove('hidden');
                 createOneTimeEvent(
                     overlay, 
                     'click',
                     () => true, 
                     () => {
-                        overlay.classList.add('hidden');
-                        document.body.style.overflow = '';
-                        // this.parent.refs[this.parent.CARD_REF+this.parent.state.indexOfCardFocused].closeCard();
-                        this.setState(state => Object.assign(state, {focusing: false, indexOfCardFocused: -10000}));
+                        //begin the exit animation
+                        this.setState({animateOut: true, focusing: false});
                     }
                 );
-                        //TODO: fix this to set static isFocused to disapear
+                
                 //force the DOM to not scroll when focused
                 document.body.style.overflow = 'hidden';
             });
+        }
+        //if animating out
+        if (this.state.animateOut && !prevState.animateOut) {
+            
+            const { indexOfCardFocused } = this.state;
+            //get the two cards
+            const hollowCard = ReactDOM.findDOMNode(this.refs[this.HOLLOW]),
+                actualCard = ReactDOM.findDOMNode(this.refs[this.CARD_REF+indexOfCardFocused]);
+            
+            const rect = hollowCard.getBoundingClientRect(),
+                style = hollowCard.currentStyle || window.getComputedStyle(hollowCard)
+
+            animateCard.out(actualCard, rect, style, () => {
+
+                this.setState({animateOut: false, indexOfCardFocused: -10000})
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            })
         }
     }
 }

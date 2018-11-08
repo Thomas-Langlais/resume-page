@@ -20,16 +20,12 @@
     height: 100%;
 }
 
-#static > .card.expanded {
-    visibility: hidden;
+#static > .card.animating {
+    z-index: 10000;
 }
 
-#static > .card.expanded.prev {
-    visibility: unset;
-}
-
-#static > .card.expanded.next {
-    visibility: unset;
+#static > .card.expanded:not(.animating) {
+    display: none;
 }
 
 #modal > .card {
