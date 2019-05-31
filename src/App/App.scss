@@ -1,0 +1,23 @@
+.app #landing {
+
+  .section {
+    position: relative;
+  
+    .card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      .card__button {
+        font-weight: bold;
+        font-size: 20px;
+      }
+    }
+  }
+
+  .app__message.app__message--landing {
+    font-size: 18px;
+    text-align: center;
+  }
+}
