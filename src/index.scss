@@ -7,6 +7,10 @@ body {
   font-family: 'Roboto';
 }
 
+input, textarea {
+  font-family: 'Roboto', 'sans-serif'
+}
+
 .tabbed-entry.two {
   display: flex;
   flex-direction: row;

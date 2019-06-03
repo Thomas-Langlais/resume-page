@@ -3,14 +3,22 @@ import Section from '../components/Section'
 import Card from '../components/Card'
 import Parallax from '../components/Parallax'
 import Header from '../components/Header'
+import Description from '../components/Description'
+import Footer from '../components/Footer'
+import FocusableTable from '../components/FocusableTable'
 
 import Landing from '../assets/landing-overlay.jpg'
+import AboutMe from '../assets/about-me-overlay.jpg'
+import ContactMe from '../assets/contact-me-overlay.jpg'
+import Me from '../assets/me.jpg'
+import data from './data.json'
+
 import './App.scss'
-import { black } from 'ansi-colors';
 
 class App extends Component {
   render() {
 
+    console.log('data', data)
     return (
       <div className="app">
         <Parallax id='landing' parallax={0.3} style={{
@@ -19,7 +27,7 @@ class App extends Component {
           backgroundPosition: 'center'
         }}>
           <Section>
-            <Card button='Contact Me'>
+            <Card button='Contact Me' variant='font-spaced'>
               <Header title='WELCOME' />
               <div className='app__message app__message--landing'>
                 Welcome to my website!<br/>
@@ -31,10 +39,120 @@ class App extends Component {
             </Card>
           </Section>
         </Parallax>
-        {/* <div style={{width: '100vw', height: 300, backgroundColor: black}}></div> */}
-        <Section></Section>
+        <div className='app__spacer'></div>
+        <Section id='about-me'>
+          <Parallax parallax={0.3} style={{
+            backgroundImage: `url(${AboutMe})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
+            <div className='app__content'>
+              <Card subtitle noButton>
+                <Header title='ABOUT ME' subtitle />
+              </Card>
+            </div>
+          </Parallax>
+          <div className='app__content'>
+            <Description variant='header'>
+              Here are some facts about me.<br />
+              I hope you find what you are looking for.
+            </Description>
+            <div className='app__row'>
+              <Card button='Read more' variant='font-spaced'>
+                <Header title='A Young Software Developer' />
+                I am following my dreams of being a software developer, always learning new things to keep it up with new emerging technology
+              </Card>
+              <Card button='Read more' variant='font-spaced'>
+                <Header title="Me - Thomas L'Anglais" />
+                I like to kick it with my friends and colleages and have a good time enjoying the simple pleasures of life.<br />
+                Like having a beer and playing board games, all while sharing funny moments.
+              </Card>
+              <Card button='Read more' variant='font-spaced'>
+                <Header title="My Aspirations" />
+                One professional aspiration I have right now is to create a project from start to finish. Mainly because I want to be able to showcase my accomplishment to prove that I am a proper software developer<br />
+                Other things that I wish to do in life are:<br />
+                Create a work desk from start to finish, Travel across the globe with my friends, and ONE MORE THING, come back later
+              </Card>
+            </div>
+          </div>
+        </Section>
+        <Section id='work'>
+          <Parallax parallax={0.3} style={{
+            backgroundImage: `url(${AboutMe})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
+            <div className='app__content'>
+              <Card subtitle noButton>
+                <Header title='ABOUT ME' subtitle />
+              </Card>
+            </div>
+          </Parallax>
+          <div className='app__content'>
+            <Description variant='header'>
+              Here are the places that I have work within my time as a university student.<br />
+              My experience has made me a smarter developer by using KISS (Keep It Simple Stupid)<br />
+              Only develop features when needed, and abstract only when the requirements of the code changes.<br />
+              These work terms have improved my skills as a software developer
+            </Description>
+            <div className='app__row'>
+              <Card button='Read more' variant='font-spaced'>
+                <Header title='Treasury Board of Canada Secretariat' />
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </Card>
+              <Card button='Read more' variant='font-spaced'>
+                <Header title="Mitel" />
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </Card>
+              <Card button='Read more' variant='font-spaced'>
+                <Header title="Ciena" />
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </Card>
+            </div>
+          </div>
+        </Section>
+        <Section id='projects'>
+          <Parallax parallax={0.3} style={{
+            backgroundImage: `url(${AboutMe})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
+            <div className='app__content'>
+              <Card subtitle noButton>
+                <Header title='Projects' subtitle subContent='and Hackathons' />
+              </Card>
+            </div>
+          </Parallax>
+          <div className='app__content'>
+            <FocusableTable data={data}/>
+          </div>
+        </Section>
+        <Parallax id='contact-me' parallax={0.3} style={{
+          backgroundImage: `url(${ContactMe})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
+          <Section>
+            <Card variant='font-spaced' noButton>
+              <img src={Me} />
+              <Header title='CONTACT ME' separator={false}/>
+              <form className='contact-form' onSubmit={this.handleSubmit}>
+                <input className='contact-form__email' name='email' type='email' placeholder='Your email' />
+                <input className='contact-form__name' name='name' placeholder='Your name' />
+                <textarea className='contact-form__message' name='message' placeholder='Your message' />
+                <button className='contact-form__submit' type='submit'>Submit</button>
+              </form>
+            </Card>
+          </Section>
+        </Parallax>
+        <Footer />
       </div>
     );
+  }
+
+  handleSubmit = (e) => {
+    console.log(e);
+    e.preventDefault();
   }
 }
 

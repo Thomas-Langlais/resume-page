@@ -1,0 +1,16 @@
+@import '../../variables.scss';
+
+.description {
+    padding: 1em 2em;
+    border-bottom: 1px solid $description-border-color;
+    text-align: start;
+
+    &.description--header {
+        padding: 30px 0;
+        text-align: center;
+    }
+}
+
+.description:not(:last-child) {
+    margin-bottom: 2em;
+}
