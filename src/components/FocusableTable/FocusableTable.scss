@@ -1,0 +1,22 @@
+@import "../../variables.scss";
+
+.focusable-table {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  display: flex;
+  
+
+  .focusable-table__focused, .focusable-table__items {
+    flex-basis: 0;
+    height: 100%;
+  }
+
+  .focusable-table__focused {
+    flex-grow: 3;
+  }
+
+  .focusable-table__items {
+    flex-grow: 2;
+    
+  }
+}

@@ -11,14 +11,13 @@ import Landing from '../assets/landing-overlay.jpg'
 import AboutMe from '../assets/about-me-overlay.jpg'
 import ContactMe from '../assets/contact-me-overlay.jpg'
 import Me from '../assets/me.jpg'
-import data from './data.json'
+import data from '../data/projects/data.json'
 
 import './App.scss'
 
 class App extends Component {
   render() {
 
-    console.log('data', data)
     return (
       <div className="app">
         <Parallax id='landing' parallax={0.3} style={{
@@ -123,9 +122,7 @@ class App extends Component {
               </Card>
             </div>
           </Parallax>
-          <div className='app__content'>
-            <FocusableTable data={data}/>
-          </div>
+          <FocusableTable className='app__content' data={data}/>
         </Section>
         <Parallax id='contact-me' parallax={0.3} style={{
           backgroundImage: `url(${ContactMe})`,
