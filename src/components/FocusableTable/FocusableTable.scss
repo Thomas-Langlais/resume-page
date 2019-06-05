@@ -17,6 +17,55 @@
 
   .focusable-table__items {
     flex-grow: 2;
-    
+    margin-right: 15px;
+    // overflow-y: scroll;
+  }
+}
+
+.focusable-item {
+  width: 100%;
+  padding: 18px;
+
+  & + .focusable-item {
+    margin-top: 1em;
+  }
+
+  .card__content {
+    display: flex;
+    flex-flow: row nowrap;
+
+    .focusable-item__title-content {
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: center;
+      flex-basis: 0;
+      flex-grow: 3;
+      font-family: Roboto Condensed;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 24px;
+      
+      .focusable-item__title {
+      }
+    }
+  
+    .focusable-item__content {
+      display: flex;
+      flex-flow: column nowrap;
+      flex-basis: 0;
+      flex-grow: 1;
+
+      .focusable-item__date, .focusable-item__type {
+        font-family: Roboto Condensed;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 12px;
+        text-align: right;
+      }
+  
+      .focusable-item__type {
+        margin-top: 0.4em;  
+      }
+    }
   }
 }

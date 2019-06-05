@@ -4,15 +4,12 @@ $card-background: white;
   display: inline-block;
   position: relative;
   box-sizing: border-box;
+  padding: 40px;
   background-color: $card-background;
   box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.25);
 
-  &.card--subtitle .card__content {
+  &.card--subtitle {
     padding: 2.5em 1.5em 1.5em;
-  }
-
-  .card__content {
-    padding: 40px;
   }
 
   .card__button {

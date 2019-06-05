@@ -37,9 +37,13 @@ class FocusableTable extends Component {
       }
       
       return (<Card className={'focusable-item' + className} noButton>
-        <div className='focusable-item__title'>{project.name}</div>
-        <div className='focusable-item__date'>{date}</div>
-        <div className='focusable-item__type'>{project.type}</div>
+        <div className='focusable-item__title-content'>
+          <div classNam='focusable-item__title'>{project.name}</div>
+        </div>
+        <div className='focusable-item__content'>
+          <div className='focusable-item__date'>{date}</div>
+          <div className='focusable-item__type'>{project.type}</div>
+        </div>
       </Card>)
     });
 
