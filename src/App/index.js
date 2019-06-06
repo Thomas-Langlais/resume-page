@@ -83,7 +83,7 @@ class App extends Component {
           }}>
             <div className='app__content'>
               <Card subtitle noButton>
-                <Header title='ABOUT ME' subtitle />
+                <Header title='WORK' subtitle />
               </Card>
             </div>
           </Parallax>

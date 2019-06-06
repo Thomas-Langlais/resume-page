@@ -42,15 +42,19 @@
         transform: translateY(-50%);
         font-size: 25px;
 
-        & > * + * {
+        & > a + a {
             margin-left: 0.2em;
         }
 
-        * {
-            transition: color 0.2s linear;
+        a {
+            color: $footer-text-color;
+            
+            svg {
+                transition: color 0.2s linear;
 
-            &:hover {
-                color: lighten($footer-text-color, 15%);
+                &:hover {
+                    color: lighten($footer-text-color, 15%);
+                }
             }
         }
     }

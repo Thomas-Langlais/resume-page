@@ -24,9 +24,15 @@ const Footer = React.memo(() => {
       Powered with <FontAwesomeIcon className='footer__react-svg' icon={faReact} />
     </div>
     <div className='footer__links'>
-      <FontAwesomeIcon icon={faGithubSquare} />
-      <FontAwesomeIcon icon={faLinkedin} />
-      <FontAwesomeIcon icon={faFacebookSquare} />
+      <a rel='author noopener noreferrer' target='_blank' href='https://github.com/Thomas-Langlais'>
+        <FontAwesomeIcon icon={faGithubSquare} />
+      </a>
+      <a rel='author noopener noreferrer' target='_blank' href='https://www.linkedin.com/in/thomas-l-anglais-939661109/'>
+        <FontAwesomeIcon icon={faLinkedin} />
+      </a>
+      <a rel='author noopener noreferrer' target='_blank' href='https://www.facebook.com/thomas.langlais1'>
+        <FontAwesomeIcon icon={faFacebookSquare} />
+      </a>
     </div>
   </footer>)
 })

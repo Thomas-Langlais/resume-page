@@ -18,6 +18,21 @@ class FocusableTable extends Component {
 
   render() {
 
+    let months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ]
+
     const { data } = this.props
     const { index } = this.state
 
@@ -31,14 +46,21 @@ class FocusableTable extends Component {
 
       let date;
       if (project.dateRange && project.dateRange.length == 2) {
-        date = 'tbd-range'
+        let range = project.dateRange.map(str => new Date(str))
+        date = `${months[range[0].getMonth()]}, ${range[0].getFullYear()} - ${months[range[1].getMonth()]}, ${range[1].getFullYear()}`
       } else {
-        date = 'tbd'
+        date = new Date(project.date)
+        date = `${months[date.getMonth()]}, ${date.getFullYear()}`
       }
       
-      return (<Card className={'focusable-item' + className} noButton>
+      return (<Card key={i} className={'focusable-item' + className} noButton onClick={(e) => {
+        this.setState({
+          index: i
+        })
+        console.log('changing project view...')
+      }}>
         <div className='focusable-item__title-content'>
-          <div classNam='focusable-item__title'>{project.name}</div>
+          <div className='focusable-item__title'>{project.name}</div>
         </div>
         <div className='focusable-item__content'>
           <div className='focusable-item__date'>{date}</div>
@@ -52,34 +74,43 @@ class FocusableTable extends Component {
 
     let date;
     if (project.dateRange && project.dateRange.length == 2) {
-      date = 'tbd-range'
+      let range = project.dateRange.map(str => new Date(str))
+      date = `${months[range[0].getMonth()]}, ${range[0].getFullYear()} - ${months[range[1].getMonth()]}, ${range[1].getFullYear()}`
     } else {
-      date = 'tbd'
+      date = new Date(project.date)
+      date = `${months[date.getMonth()]}, ${date.getFullYear()}`
     }
+
+    let skills = project.skills.map((skill, i) => <div key={i} className='focused-skill'>
+      {skill}
+    </div>)
+
+    let paragraphs = project.paragraphs.map((paragraph, i) =>
+      <div key={i} className='focused-content__paragraph'>
+        {paragraph}
+      </div>
+    )
 
     return (<div className={'focusable-table' + className}>
       <div className='focusable-table__items' >
         {items}
       </div>
       <Card className='focusable-table__focused' noButton>
-        <div className='focused-content '>
-          <div className='focused-content__title'>{project.name}</div>
-          <div className='focused-content__type'>{project.type}</div>
-          <div className='focused-content__date'>{date}</div>
+        <div className='focused-content'>
+          <div className='focused-content__header'>
+            <div className='focused-content__title'>{project.name}</div>
+            <div className='focused-content__type'>{project.type}</div>
+            <div className='focused-content__date'>{date}</div>
+          </div>
           <div className='focused-content__paragraphs'>
-            { project.paragraphs.map(paragraph => {
-              return <div className='focused-content__paragraph'>
-                {paragraph}
-              </div>
-            })} 
+            {paragraphs} 
           </div>
         </div>
         <div className='focused-skills'>
-          { project.skills.map(skill => {
-            return <div className='focused-skills__skill'>
-              {skill}
-            </div>
-          })}
+          <div className='focused-skills__title'>Skills</div>
+          <div className='focused-skills__content'>
+            {skills}
+          </div>
         </div>
       </Card>
     </div>)

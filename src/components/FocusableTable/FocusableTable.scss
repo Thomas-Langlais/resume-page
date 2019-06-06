@@ -12,24 +12,108 @@
   }
 
   .focusable-table__focused {
+    padding: 25px 30px;
     flex-grow: 3;
   }
 
   .focusable-table__items {
-    flex-grow: 2;
     margin-right: 15px;
-    // overflow-y: scroll;
+    flex-grow: 2;
+    // overflow-y: scroll; cuts off the box shadows... look into sol
+  }
+}
+
+.focusable-table__focused .card__content {
+  height: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+
+  .focused-content {
+    flex: 5 0 0;
+  }
+
+  .focused-skills {
+    flex: 0 1 210px;
+    margin-left: 15px;
+  }
+}
+
+.focused-content .focused-content__title,
+.focused-skills .focused-skills__title {
+  font-family: Roboto Condensed;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 36px;
+  color: $text-tinted-blue;
+  // letter-spacing: 0.04em;
+  padding-bottom: 0.05em;
+  border-bottom: 1px solid $text-tinted-blue;
+}
+
+.focused-content {
+  display: flex;
+  flex-flow: column nowrap;
+
+  .focused-content__header {
+    flex: 0 0 auto;
+    margin-bottom: 10px;
+
+    .focused-content__type, .focused-content__date {
+      font-family: Roboto Condensed;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 11px;
+      line-height: 13px;
+    }
+  
+    .focused-content__type {
+      margin-top: 10px;
+    }
+  }
+
+  .focused-content__paragraphs {
+    flex: 1 0 0;
+    overflow-y: scroll;
+    font-family: Roboto Condensed;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 19px;
+  }
+}
+
+.focused-skills {
+
+  .focused-skills__content {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    margin-top: 10px;
+
+    .focused-skill {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 10px;
+      border-radius: 50%;
+      background-color: #C4C4C4;
+      box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.25);
+    }
   }
 }
 
 .focusable-item {
   width: 100%;
   padding: 18px;
+  transition: box-shadow 0.3s linear;
 
   & + .focusable-item {
     margin-top: 1em;
   }
 
+  &.focusable-item--focused {
+    box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.25)
+  }
+  
   .card__content {
     display: flex;
     flex-flow: row nowrap;
