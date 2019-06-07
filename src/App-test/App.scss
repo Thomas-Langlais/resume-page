@@ -1,0 +1,34 @@
+@import '../variables.scss';
+
+.app {
+    #landing {
+
+        + .section {
+          position: relative;
+          background-color: unset;
+        
+          .card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+      
+            .card__button {
+              font-weight: bold;
+              font-size: 20px;
+            }
+          }
+        }
+      }
+}
+
+.app__message.app__message--landing {
+    font-size: 18px;
+    text-align: center;
+}
+
+.app__spacer {
+    height: 100vh;
+    width: 100%;
+    background-color: $material-background;
+}
