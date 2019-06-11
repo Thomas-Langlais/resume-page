@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 import ParallaxContext from '../../helpers/ParallaxContext'
 import ParallaxController from '../../classes/ParallaxController'
+
+import './ParallaxProvider.scss'
 
 const createController = options => {
   return new ParallaxController(options)
@@ -9,10 +12,16 @@ const createController = options => {
 
 class ParallaxProvider extends Component {
   
+  static propTypes = {
+    scrollContainer: PropTypes.element,
+    children: PropTypes.arrayOf(PropTypes.Element).isRequired
+  }
+
   constructor(props) {
     super(props)
 
-    this.controller = createController({})
+    let scrollContainer = this.props.scrollContainer;
+    this.controller = createController({ scrollContainer})
   }
 
   componentWillUnmount() {
@@ -22,11 +31,13 @@ class ParallaxProvider extends Component {
   render() {
     const { children } = this.props;
 
-    return (
+    return (<div className='viewport'>
+      <div>
         <ParallaxContext.Provider value={this.controller}>
-            {children}
+          {children}
         </ParallaxContext.Provider>
-    );
+      </div>
+    </div>);
   }
 }
 
