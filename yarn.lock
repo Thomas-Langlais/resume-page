@@ -8310,6 +8310,13 @@ react-scripts@2.1.8:
   optionalDependencies:
     fsevents "1.2.4"
 
+react-scroll-parallax@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/react-scroll-parallax/-/react-scroll-parallax-2.1.2.tgz#71d061a37e225125d929b07d629cbced9be1849a"
+  integrity sha512-Sv2/3etQGgpTQnJhb/nMLcTQhz4ILrB1fIIW853XlHyhD0YuGINk66HciW7B1N9zZpGX8sJY37QNoYit9PdTdQ==
+  dependencies:
+    prop-types "^15.5.10"
+
 react@^16.8.6:
   version "16.8.6"
   resolved "https://registry.yarnpkg.com/react/-/react-16.8.6.tgz#ad6c3a9614fd3a4e9ef51117f54d888da01f2bbe"

@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import { ParallaxBanner, withController } from 'react-scroll-parallax'
+
 import Section from '../components/Section'
 import Card from '../components/Card'
-import Parallax from '../components/Parallax'
 import Header from '../components/Header'
 import Description from '../components/Description'
 import Footer from '../components/Footer'
@@ -16,41 +17,62 @@ import data from '../data/projects/data.json'
 import './App.scss'
 
 class App extends Component {
+
+  constructor(props) {
+    super(props)
+
+    // this fixes the issue with cache image updating noted in the docs of the lib
+    window.onload = () => {
+      this.controller.update()
+    }
+  }
+
   render() {
 
     return (
       <div className="app">
-        <Parallax id='landing' parallax={0.3} style={{
-          backgroundImage: `url(${Landing})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}>
-          <Section>
-            <Card button='Contact Me' variant='font-spaced'>
-              <Header title='WELCOME' />
-              <div className='app__message app__message--landing'>
-                Welcome to my website!<br/>
-                I hope that whoever you are, that your day is going well.<br/>
-                Here you’ll find some information about myself.<br/>
-                If you wish to get in contact with me, please fill out the form below.<br/><br/>
-                Cheers, Thomas L’Anglais
-              </div>
-            </Card>
-          </Section>
-        </Parallax>
+        <div id='landing'>
+          <ParallaxBanner 
+            layers={[{
+              image: Landing,
+              amount: 0.15
+            }]}
+            style={{
+              height: null,
+              width: null
+            }}>
+            <Section>
+              <Card button='Contact Me' variant='font-spaced'>
+                <Header title='WELCOME' />
+                <div className='app__message app__message--landing'>
+                  Welcome to my website!<br/>
+                  I hope that whoever you are, that your day is going well.<br/>
+                  Here you’ll find some information about myself.<br/>
+                  If you wish to get in contact with me, please fill out the form below.<br/><br/>
+                  Cheers, Thomas L’Anglais
+                </div>
+              </Card>
+            </Section>
+          </ParallaxBanner>
+        </div>
         <div className='app__spacer'></div>
         <Section id='about-me'>
-          <Parallax parallax={0.3} style={{
-            backgroundImage: `url(${AboutMe})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}>
+          <ParallaxBanner
+            className='parallax-banner--header'
+            layers={[{
+              image: AboutMe,
+              amount: 0.25
+            }]}
+            style={{
+              height: null,
+              width: null
+            }}>
             <div className='app__content'>
               <Card subtitle noButton>
                 <Header title='ABOUT ME' subtitle />
               </Card>
             </div>
-          </Parallax>
+          </ParallaxBanner>
           <div className='app__content'>
             <Description variant='header'>
               Here are some facts about me.<br />
@@ -76,17 +98,22 @@ class App extends Component {
           </div>
         </Section>
         <Section id='work'>
-          <Parallax parallax={0.3} style={{
-            backgroundImage: `url(${AboutMe})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}>
+          <ParallaxBanner
+            className='parallax-banner--header'
+            layers={[{
+              image: AboutMe,
+              amount: 0.25
+            }]}
+            style={{
+              height: null,
+              width: null
+            }}>
             <div className='app__content'>
               <Card subtitle noButton>
-                <Header title='WORK' subtitle />
+                <Header title='Work' subtitle />
               </Card>
             </div>
-          </Parallax>
+          </ParallaxBanner>
           <div className='app__content'>
             <Description variant='header'>
               Here are the places that I have work within my time as a university student.<br />
@@ -111,40 +138,55 @@ class App extends Component {
           </div>
         </Section>
         <Section id='projects'>
-          <Parallax parallax={0.3} style={{
-            backgroundImage: `url(${AboutMe})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}>
+          <ParallaxBanner 
+            className='parallax-banner--header'
+            layers={[{
+              image: AboutMe,
+              amount: 0.25
+            }]}
+            style={{
+              height: null,
+              width: null
+            }}>
             <div className='app__content'>
               <Card subtitle noButton>
                 <Header title='Projects' subtitle subContent='and Hackathons' />
               </Card>
             </div>
-          </Parallax>
+          </ParallaxBanner>
           <FocusableTable className='app__content' data={data}/>
         </Section>
-        <Parallax id='contact-me' parallax={0.3} style={{
-          backgroundImage: `url(${ContactMe})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}>
-          <Section>
-            <Card variant='font-spaced' noButton>
-              <img src={Me} />
-              <Header title='CONTACT ME' separator={false}/>
-              <form className='contact-form' onSubmit={this.handleSubmit}>
-                <input className='contact-form__email' name='email' type='email' placeholder='Your email' />
-                <input className='contact-form__name' name='name' placeholder='Your name' />
-                <textarea className='contact-form__message' name='message' placeholder='Your message' />
-                <button className='contact-form__submit' type='submit'>Submit</button>
-              </form>
-            </Card>
-          </Section>
-        </Parallax>
+        <div id='contact-me'>
+          <ParallaxBanner 
+            layers={[{
+              image: ContactMe,
+              amount: 0.25
+            }]}
+            style={{
+              height: null,
+              width: null
+            }}>
+            <Section>
+              <Card variant='font-spaced' noButton>
+                <img src={Me} />
+                <Header title='CONTACT ME' separator={false}/>
+                <form className='contact-form' onSubmit={this.handleSubmit}>
+                  <input className='contact-form__email' name='email' type='email' placeholder='Your email' />
+                  <input className='contact-form__name' name='name' placeholder='Your name' />
+                  <textarea className='contact-form__message' name='message' placeholder='Your message' />
+                  <button className='contact-form__submit' type='submit'>Submit</button>
+                </form>
+              </Card>
+            </Section>
+          </ParallaxBanner>
+        </div>
         <Footer />
       </div>
     );
+  }
+
+  get controller() {
+    return this.props.parallaxController
   }
 
   handleSubmit = (e) => {
@@ -153,7 +195,7 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withController(App);
 
 /**
  * <Section id="personal-details">
