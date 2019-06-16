@@ -7,13 +7,17 @@ import Header from '../components/Header'
 import Description from '../components/Description'
 import Footer from '../components/Footer'
 import FocusableTable from '../components/FocusableTable'
+import { validScrollIntoViewOptions, validScrollIntoView } from '../utils/browserLimits'
 
 import Landing from '../assets/landing-overlay.jpg'
 import AboutMe from '../assets/about-me-overlay.jpg'
 import ContactMe from '../assets/contact-me-overlay.jpg'
+import Projects from '../assets/projects-overlay.jpg'
+import Work from '../assets/work1.jpg'
 import Me from '../assets/me.jpg'
 import data from '../data/projects/data.json'
 
+// FIXME: add web responsiveness for the app for mobile, tablet, and extra big monitors
 import './App.scss'
 
 class App extends Component {
@@ -27,6 +31,27 @@ class App extends Component {
     }
   }
 
+  get controller() {
+    return this.props.parallaxController
+  }
+
+  _handleSubmit = (e) => {
+    console.log(e);
+    e.preventDefault();
+  }
+
+  _contactMe = () => {
+    const { contactSection } = this.refs
+
+    if (validScrollIntoViewOptions) {
+      contactSection.scrollIntoView({
+        behavior: 'smooth'
+      })
+    } else {
+      contactSection.scrollIntoView(true)
+    }
+  }
+
   render() {
 
     return (
@@ -35,15 +60,15 @@ class App extends Component {
           <ParallaxBanner 
             layers={[{
               image: Landing,
-              amount: 0.15
+              amount: 0.3
             }]}
             style={{
               height: null,
               width: null
             }}>
             <Section>
-              <Card button='Contact Me' variant='font-spaced'>
-                <Header title='WELCOME' />
+              <Card title='WELCOME' button='Contact Me' btnCb={this._contactMe} variant='font-spaced'>
+                {/* <Header title='WELCOME' /> */}
                 <div className='app__message app__message--landing'>
                   Welcome to my website!<br/>
                   I hope that whoever you are, that your day is going well.<br/>
@@ -61,7 +86,7 @@ class App extends Component {
             className='parallax-banner--header'
             layers={[{
               image: AboutMe,
-              amount: 0.25
+              amount: 0.3
             }]}
             style={{
               height: null,
@@ -75,24 +100,24 @@ class App extends Component {
           </ParallaxBanner>
           <div className='app__content'>
             <Description variant='header'>
-              Here are some facts about me.<br />
-              I hope you find what you are looking for.
+              <span>Here are some facts about me.</span><br />
+              <span>I hope you find what you are looking for.</span>
             </Description>
             <div className='app__row'>
-              <Card button='Read more' variant='font-spaced'>
-                <Header title='A Young Software Developer' />
-                I am following my dreams of being a software developer, always learning new things to keep it up with new emerging technology
+              <Card expandable={true} variant='font-spaced' title='A Young Software Developer'>
+                {/* <Header title='A Young Software Developer' /> */}
+                <span>I am following my dreams of being a software developer, always learning new things to keep it up with new emerging technology</span>
               </Card>
-              <Card button='Read more' variant='font-spaced'>
-                <Header title="Me - Thomas L'Anglais" />
-                I like to kick it with my friends and colleages and have a good time enjoying the simple pleasures of life.<br />
-                Like having a beer and playing board games, all while sharing funny moments.
+              <Card expandable={true} variant='font-spaced' title="Me - Thomas L'Anglais">
+                {/* <Header title="Me - Thomas L'Anglais" /> */}
+                <span>I like to kick it with my friends and colleages and have a good time enjoying the simple pleasures of life.</span><br />
+                <span>Like having a beer and playing board games, all while sharing funny moments.</span>
               </Card>
-              <Card button='Read more' variant='font-spaced'>
-                <Header title="My Aspirations" />
-                One professional aspiration I have right now is to create a project from start to finish. Mainly because I want to be able to showcase my accomplishment to prove that I am a proper software developer<br />
-                Other things that I wish to do in life are:<br />
-                Create a work desk from start to finish, Travel across the globe with my friends, and ONE MORE THING, come back later
+              <Card expandable={true} variant='font-spaced' title='My Aspirations'>
+                {/* <Header title="My Aspirations" /> */}
+                <span>One professional aspiration I have right now is to create a project from start to finish. Mainly because I want to be able to showcase my accomplishment to prove that I am a proper software developer</span><br />
+                <span>Other things that I wish to do in life are:</span><br />
+                <span>Create a work desk from start to finish, Travel across the globe with my friends, and ONE MORE THING, come back later</span>
               </Card>
             </div>
           </div>
@@ -101,8 +126,8 @@ class App extends Component {
           <ParallaxBanner
             className='parallax-banner--header'
             layers={[{
-              image: AboutMe,
-              amount: 0.25
+              image: Work,
+              amount: 0.3
             }]}
             style={{
               height: null,
@@ -116,23 +141,23 @@ class App extends Component {
           </ParallaxBanner>
           <div className='app__content'>
             <Description variant='header'>
-              Here are the places that I have work within my time as a university student.<br />
-              My experience has made me a smarter developer by using KISS (Keep It Simple Stupid)<br />
-              Only develop features when needed, and abstract only when the requirements of the code changes.<br />
-              These work terms have improved my skills as a software developer
+              <span>Here are the places that I have work within my time as a university student.</span><br />
+              <span>My experience has made me a smarter developer by using KISS (Keep It Simple Stupid)</span><br />
+              <span>Only develop features when needed, and abstract only when the requirements of the code changes.</span><br />
+              <span>These work terms have improved my skills as a software developer</span>
             </Description>
             <div className='app__row'>
-              <Card button='Read more' variant='font-spaced'>
-                <Header title='Treasury Board of Canada Secretariat' />
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              <Card expandable={true} variant='font-spaced' title='Treasury Board of Canada Secretariat'>
+                {/* <Header title='Treasury Board of Canada Secretariat' /> */}
+                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</span>
               </Card>
-              <Card button='Read more' variant='font-spaced'>
-                <Header title="Mitel" />
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              <Card expandable={true} variant='font-spaced' title='Mitel'>
+                {/* <Header title="Mitel" /> */}
+                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</span>
               </Card>
-              <Card button='Read more' variant='font-spaced'>
-                <Header title="Ciena" />
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              <Card expandable={true} variant='font-spaced' title='Ciena'>
+                {/* <Header title="Ciena" /> */}
+                <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</span>
               </Card>
             </div>
           </div>
@@ -141,8 +166,8 @@ class App extends Component {
           <ParallaxBanner 
             className='parallax-banner--header'
             layers={[{
-              image: AboutMe,
-              amount: 0.25
+              image: Projects,
+              amount: 0.3
             }]}
             style={{
               height: null,
@@ -156,21 +181,22 @@ class App extends Component {
           </ParallaxBanner>
           <FocusableTable className='app__content' data={data}/>
         </Section>
-        <div id='contact-me'>
+        <div id='contact-me' ref='contactSection'>
           <ParallaxBanner 
             layers={[{
               image: ContactMe,
-              amount: 0.25
+              amount: 0.3
             }]}
             style={{
               height: null,
               width: null
             }}>
+            {/* TODO: get the code working for the form handling */}
             <Section>
-              <Card variant='font-spaced' noButton>
-                <img src={Me} />
+              <Card variant='font-spaced' noButton freeContent>
+                <img src={Me} alt='professional of myself' />
                 <Header title='CONTACT ME' separator={false}/>
-                <form className='contact-form' onSubmit={this.handleSubmit}>
+                <form className='contact-form' onSubmit={this._handleSubmit}>
                   <input className='contact-form__email' name='email' type='email' placeholder='Your email' />
                   <input className='contact-form__name' name='name' placeholder='Your name' />
                   <textarea className='contact-form__message' name='message' placeholder='Your message' />
@@ -183,15 +209,6 @@ class App extends Component {
         <Footer />
       </div>
     );
-  }
-
-  get controller() {
-    return this.props.parallaxController
-  }
-
-  handleSubmit = (e) => {
-    console.log(e);
-    e.preventDefault();
   }
 }
 

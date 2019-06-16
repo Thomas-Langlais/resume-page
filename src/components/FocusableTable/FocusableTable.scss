@@ -73,7 +73,7 @@
 
   .focused-content__paragraphs {
     flex: 1 0 0;
-    overflow-y: scroll;
+    overflow-y: hidden; // this the default behaviour
     font-family: Roboto Condensed;
     font-style: normal;
     font-weight: normal;
@@ -128,9 +128,6 @@
       font-style: normal;
       font-weight: normal;
       font-size: 24px;
-      
-      .focusable-item__title {
-      }
     }
   
     .focusable-item__content {

@@ -54,6 +54,7 @@
 
     .app__content {
       height: calc(100vh - 312px);
+      overflow: hidden;
     }
   }
 
@@ -69,14 +70,21 @@
   }
 
   .app__content {
+    // display: flex;
+    // flex-flow: column nowrap;
+    box-sizing: border-box;
     padding-left: 10%;
     padding-right: 10%;
-    box-sizing: border-box;
+
+    // > * {
+    //   flex: 0 0 0;
+    // }
   }
 
   .app__row {
     display: flex;
     flex-direction: row;
+    max-height: 65%;
 
     .header {
       height: auto;
@@ -94,60 +102,59 @@
       }
     }
   }
+}
 
+.parallax-banner {
+  position: relative;
+  height: 100vh;
+  width: 100%;
 
-  .parallax-banner {
-    position: relative;
-    height: 100vh;
-    width: 100%;
+  &.parallax-banner--header {
+    height: 312px;
+  }
+}
 
-    &.parallax-banner--header {
-      height: 312px;
+.contact-form {
+
+  .contact-form__email, .contact-form__name, .contact-form__message {
+    display: block;
+    padding: 0.5rem;
+    width: 502px;
+    line-height: 18px;
+    font-size: 13px;
+    background: #FAFAFA;
+    border: 1px solid #E2E2E2;
+    transition: border 0.3s linear;
+
+    &:focus {
+      border: 1px solid darken(#E2E2E2, 20%);
     }
   }
 
-  .contact-form {
+  .contact-form__message {
+    height: 350px;
+    resize: none;
+  }
 
-    .contact-form__email, .contact-form__name, .contact-form__message {
-      display: block;
-      padding: 0.5rem;
-      width: 502px;
-      line-height: 18px;
-      font-size: 13px;
-      background: #FAFAFA;
-      border: 1px solid #E2E2E2;
-      transition: border 0.3s linear;
+  .contact-form__submit {
+    font-size: 20px;
+    font-weight: normal;
+    letter-spacing: 0.03em;
+    padding: 0.5em 3em;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    border: none;
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.25);
+    transition: box-shadow 0.3s linear;
 
-      &:focus {
-        border: 1px solid darken(#E2E2E2, 20%);
-      }
+    &:hover {
+      box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.25);
     }
+  }
 
-    .contact-form__message {
-      height: 350px;
-      resize: none;
-    }
-
-    .contact-form__submit {
-      font-size: 20px;
-      font-weight: normal;
-      letter-spacing: 0.03em;
-      padding: 0.5em 3em;
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translate(-50%, 50%);
-      border: none;
-      box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.25);
-      transition: box-shadow 0.3s linear;
-
-      &:hover {
-        box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.25);
-      }
-    }
-
-    & > * + * {
-      margin-top: 0.3rem;
-    }
+  & > * + * {
+    margin-top: 0.3rem;
   }
 }

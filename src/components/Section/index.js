@@ -3,10 +3,6 @@ import PropTypes from 'prop-types'
 import './Section.scss';
 
 class Section extends Component {
-
-  defaultProps = {
-    id: ''
-  }
   
   static propTypes = {
     id: PropTypes.string

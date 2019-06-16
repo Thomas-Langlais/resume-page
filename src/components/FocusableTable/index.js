@@ -2,8 +2,25 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
 import Card from '../Card'
+import hasOverflown from '../../utils/hasOverflown'
 
-import './FocusableTable.scss'
+// FIXME: add responsiveness and skills fixes as it sucks on mobile right now
+import './FocusableTable.scss'      
+
+let months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'
+]
 
 class FocusableTable extends Component {
 
@@ -12,26 +29,52 @@ class FocusableTable extends Component {
     data: PropTypes.arrayOf(PropTypes.object)
   }
 
+  // removed the overflown state as it was causing rendering jank
   state = {
     index: 0
   }
 
-  render() {
+  constructor(props) {
+    super(props)
 
-    let months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ]
+    window.addEventListener('load', this._handleContent)
+    window.addEventListener('resize', this._handleContent)
+  }
+
+  _handleContent = () => {
+    
+    const { content } = this.refs
+    if (hasOverflown(content)) {
+      content.style.overflowY = 'scroll'
+    } else {
+      content.style.overflowY = 'hidden'
+    }
+  }
+
+  _handleClick = (index) => () => {
+    this.setState({
+      index: index
+    })
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+
+    const { index } = this.state
+
+    if (index !== nextState.index) {
+      return true
+    }
+
+    return false
+  }
+
+  // update the overflow object
+  componentDidUpdate() {
+
+    this._handleContent()
+  }
+  
+  render() {
 
     const { data } = this.props
     const { index } = this.state
@@ -45,7 +88,7 @@ class FocusableTable extends Component {
       }
 
       let date;
-      if (project.dateRange && project.dateRange.length == 2) {
+      if (project.dateRange && project.dateRange.length === 2) {
         let range = project.dateRange.map(str => new Date(str))
         date = `${months[range[0].getMonth()]}, ${range[0].getFullYear()} - ${months[range[1].getMonth()]}, ${range[1].getFullYear()}`
       } else {
@@ -53,12 +96,7 @@ class FocusableTable extends Component {
         date = `${months[date.getMonth()]}, ${date.getFullYear()}`
       }
       
-      return (<Card key={i} className={'focusable-item' + className} noButton onClick={(e) => {
-        this.setState({
-          index: i
-        })
-        console.log('changing project view...')
-      }}>
+      return (<Card key={i} className={'focusable-item' + className} noButton onClick={this._handleClick(i)}>
         <div className='focusable-item__title-content'>
           <div className='focusable-item__title'>{project.name}</div>
         </div>
@@ -73,7 +111,7 @@ class FocusableTable extends Component {
     let className = this.props.className ? ' ' + this.props.className : ''
 
     let date;
-    if (project.dateRange && project.dateRange.length == 2) {
+    if (project.dateRange && project.dateRange.length === 2) {
       let range = project.dateRange.map(str => new Date(str))
       date = `${months[range[0].getMonth()]}, ${range[0].getFullYear()} - ${months[range[1].getMonth()]}, ${range[1].getFullYear()}`
     } else {
@@ -102,13 +140,14 @@ class FocusableTable extends Component {
             <div className='focused-content__type'>{project.type}</div>
             <div className='focused-content__date'>{date}</div>
           </div>
-          <div className='focused-content__paragraphs'>
+          <div className='focused-content__paragraphs' ref='content'>
             {paragraphs} 
           </div>
         </div>
         <div className='focused-skills'>
           <div className='focused-skills__title'>Skills</div>
           <div className='focused-skills__content'>
+          {/* TODO: add functionality to add the svgs */}
             {skills}
           </div>
         </div>
